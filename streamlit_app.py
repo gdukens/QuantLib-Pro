@@ -125,7 +125,17 @@ with col3:
 
 with col4:
     with st.container():
-        st.markdown("#### 📖 Documentation")
+        st.markdown("#### � Backtesting")
+        st.markdown("Test trading strategies")
+        if st.button("View", key="backtest"):
+            st.switch_page("pages/7_📊_Backtesting.py")
+
+# Second row of additional features
+col5, col6, col7, col8 = st.columns(4)
+
+with col5:
+    with st.container():
+        st.markdown("#### �📖 Documentation")
         st.markdown("API docs & user guide")
         if st.button("View Docs", key="docs"):
             st.markdown("[API Documentation](/docs)")

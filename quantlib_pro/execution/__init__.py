@@ -6,6 +6,7 @@ Provides:
   - Market impact models (Almgren-Chriss, Kyle, JPM, square-root)
   - Execution strategies (VWAP, TWAP, POV)
   - Slippage and execution cost analysis
+  - Backtesting framework for strategy evaluation
 """
 
 from .order_book import (
@@ -35,6 +36,17 @@ from .strategies import (
     intraday_volume_profile,
 )
 
+from .backtesting import (
+    Trade as BacktestTrade,
+    Position,
+    BacktestResult,
+    Strategy,
+    BacktestEngine,
+    MovingAverageCrossover,
+    MeanReversionStrategy,
+    MomentumStrategy,
+)
+
 __all__ = [
     # Order book
     "Order",
@@ -57,4 +69,13 @@ __all__ = [
     "pov_schedule",
     "simulate_execution",
     "intraday_volume_profile",
+    # Backtesting
+    "BacktestTrade",
+    "Position",
+    "BacktestResult",
+    "Strategy",
+    "BacktestEngine",
+    "MovingAverageCrossover",
+    "MeanReversionStrategy",
+    "MomentumStrategy",
 ]

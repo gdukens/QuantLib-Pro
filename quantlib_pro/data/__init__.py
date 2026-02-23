@@ -1,4 +1,4 @@
-"""Market data pipeline: resilient fetching, multi-tier caching, quality validation."""
+"""Market data pipeline: resilient fetching, multi-tier caching, quality validation, multi-provider support."""
 
 from quantlib_pro.data.cache import get_dataframe, set_dataframe
 from quantlib_pro.data.fetcher import DataFetchError, ResilientDataFetcher
@@ -9,6 +9,15 @@ from quantlib_pro.data.quality import (
     PORTFOLIO_CONTRACT,
     QualityContract,
     QualityReport,
+)
+from quantlib_pro.data.providers import (
+    DataProvider,
+    YahooFinanceProvider,
+    AlphaVantageProvider,
+    CSVProvider,
+    SimulatedProvider,
+    DataProviderFactory,
+    MultiProviderAggregator,
 )
 
 __all__ = [
@@ -25,4 +34,12 @@ __all__ = [
     "QualityReport",
     "OHLCV_CONTRACT",
     "PORTFOLIO_CONTRACT",
+    # providers
+    "DataProvider",
+    "YahooFinanceProvider",
+    "AlphaVantageProvider",
+    "CSVProvider",
+    "SimulatedProvider",
+    "DataProviderFactory",
+    "MultiProviderAggregator",
 ]
