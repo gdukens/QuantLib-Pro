@@ -1,0 +1,162 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "quantlib-pro"
+version = "0.1.0"
+description = "Unified Quantitative Finance Suite — 30 tools in one platform"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "tubakhxn" }]
+
+dependencies = [
+    # ── Data & Numerics ──────────────────────────────────────────
+    "numpy>=1.26.4",
+    "pandas>=2.2.3",
+    "scipy>=1.12.0",
+
+    # ── Market Data ──────────────────────────────────────────────
+    "yfinance>=0.2.48",
+
+    # ── Machine Learning ─────────────────────────────────────────
+    "scikit-learn>=1.4.0",
+    "hmmlearn>=0.3.2",
+
+    # ── Visualisation ────────────────────────────────────────────
+    "matplotlib>=3.9.0",
+    "plotly>=5.20.0",
+    "seaborn>=0.13.0",
+
+    # ── UI ───────────────────────────────────────────────────────
+    "streamlit>=1.32.0",
+
+    # ── Graph / Network ──────────────────────────────────────────
+    "networkx>=3.2.0",
+
+    # ── Caching ──────────────────────────────────────────────────
+    "redis>=5.0.0",
+
+    # ── API Framework ────────────────────────────────────────────
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.27.0",
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7.4",
+    "python-multipart>=0.0.9",
+    "slowapi>=0.1.9",
+    "bleach>=6.1.0",
+
+    # ── Encryption ───────────────────────────────────────────────
+    "cryptography>=42.0.0",
+
+    # ── Observability ────────────────────────────────────────────
+    "prometheus-client>=0.20.0",
+    "opentelemetry-api>=1.23.0",
+    "opentelemetry-sdk>=1.23.0",
+    "opentelemetry-exporter-otlp-proto-grpc>=1.23.0",
+    "opentelemetry-instrumentation-fastapi>=0.44b0",
+    "opentelemetry-instrumentation-redis>=0.44b0",
+    "opentelemetry-instrumentation-requests>=0.44b0",
+
+    # ── Utilities ────────────────────────────────────────────────
+    "psutil>=5.9.8",
+    "python-dotenv>=1.0.0",
+    "boto3>=1.34.0",
+    "pydantic>=2.6.0",
+    "structlog>=24.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    # Testing
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-mock>=3.12.0",
+    "fakeredis>=2.21.0",
+    "httpx>=0.27.0",        # FastAPI test client
+
+    # Code quality
+    "black>=24.0.0",
+    "flake8>=7.0.0",
+    "mypy>=1.8.0",
+    "isort>=5.13.0",
+    "pre-commit>=3.6.0",
+
+    # Security
+    "bandit>=1.7.7",
+    "safety>=3.0.0",
+
+    # Types
+    "pandas-stubs>=2.2.0",
+    "types-redis>=4.6.0",
+    "types-bleach>=6.1.0",
+]
+
+[project.scripts]
+quantlib = "quantlib_pro.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["quantlib_pro*"]
+
+# ─── Black ───────────────────────────────────────────────────────────────────
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312"]
+skip-string-normalization = false
+
+# ─── isort ───────────────────────────────────────────────────────────────────
+[tool.isort]
+profile = "black"
+line_length = 100
+
+# ─── mypy ────────────────────────────────────────────────────────────────────
+[tool.mypy]
+python_version = "3.12"
+strict = false
+ignore_missing_imports = true
+warn_return_any = true
+warn_unused_ignores = true
+
+# ─── pytest ──────────────────────────────────────────────────────────────────
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--cov=quantlib_pro",
+    "--cov-report=term-missing",
+    "--cov-report=xml:coverage.xml",
+    "--cov-fail-under=70",
+    "-v",
+    "--tb=short",
+]
+asyncio_mode = "auto"
+markers = [
+    "unit: fast unit tests (no external calls)",
+    "integration: requires redis or database",
+    "load: performance/load tests (slow)",
+    "security: security-focused tests",
+    "edge_case: boundary and edge condition tests",
+]
+
+# ─── coverage ────────────────────────────────────────────────────────────────
+[tool.coverage.run]
+source = ["quantlib_pro"]
+omit = ["*/tests/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]
+
+# ─── bandit ──────────────────────────────────────────────────────────────────
+[tool.bandit]
+exclude_dirs = ["tests", "venv", ".venv"]
+skips = ["B101"]   # Allow assert statements in tests

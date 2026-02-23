@@ -1,0 +1,170 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "develop"]
+  pull_request:
+    branches: ["main", "develop"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  # ─── 1. Lint & Format ──────────────────────────────────────────────────────
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install dev dependencies
+        run: pip install black flake8 isort mypy
+
+      - name: black —check
+        run: black --check --diff quantlib_pro tests
+
+      - name: isort —check
+        run: isort --check-only --diff quantlib_pro tests
+
+      - name: flake8
+        run: flake8 quantlib_pro tests --max-line-length=100 --extend-ignore=E203,W503
+
+      - name: mypy
+        run: mypy quantlib_pro --ignore-missing-imports
+
+  # ─── 2. Security Scan ──────────────────────────────────────────────────────
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install bandit & safety
+        run: pip install bandit safety
+
+      - name: Bandit (SAST)
+        run: bandit -r quantlib_pro -f json -o bandit-report.json --exit-zero
+        continue-on-error: false
+
+      - name: Safety (dependency audit)
+        run: safety check --file pyproject.toml
+        continue-on-error: true   # Advisory only until pinned versions locked
+
+      - name: Upload bandit report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bandit-report
+          path: bandit-report.json
+
+  # ─── 3. Unit Tests ─────────────────────────────────────────────────────────
+  test:
+    name: Unit Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+      fail-fast: false
+
+    services:
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install package + dev deps
+        run: pip install -e ".[dev]"
+
+      - name: Run unit tests
+        run: pytest tests/unit -m "unit" --tb=short
+        env:
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+          APP_ENV: test
+          ENABLE_AUTH: "false"
+          ENABLE_AUDIT_LOG: "false"
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        if: matrix.python-version == '3.12'
+        with:
+          name: coverage-report
+          path: coverage.xml
+
+  # ─── 4. Integration Tests ──────────────────────────────────────────────────
+  integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push'
+
+    services:
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install package + dev deps
+        run: pip install -e ".[dev]"
+
+      - name: Run integration tests
+        run: pytest tests/integration -m "integration" --tb=short
+        env:
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+          APP_ENV: test
+
+  # ─── 5. Build Docker image ─────────────────────────────────────────────────
+  docker-build:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: quantlib-pro:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
