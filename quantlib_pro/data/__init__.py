@@ -10,15 +10,24 @@ from quantlib_pro.data.quality import (
     QualityContract,
     QualityReport,
 )
-from quantlib_pro.data.providers import (
-    DataProvider,
-    YahooFinanceProvider,
-    AlphaVantageProvider,
-    CSVProvider,
-    SimulatedProvider,
-    DataProviderFactory,
-    MultiProviderAggregator,
-)
+# Legacy providers (providers.py) - kept for backward compatibility
+try:
+    from quantlib_pro.data.providers_legacy import (
+        DataProvider,
+        YahooFinanceProvider,
+        CSVProvider,
+        SimulatedProvider,
+        DataProviderFactory,
+        MultiProviderAggregator,
+    )
+except ImportError:
+    # If legacy providers don't exist, skip them
+    DataProvider = None
+    YahooFinanceProvider = None
+    CSVProvider = None
+    SimulatedProvider = None
+    DataProviderFactory = None
+    MultiProviderAggregator = None
 
 __all__ = [
     # fetcher
@@ -34,12 +43,15 @@ __all__ = [
     "QualityReport",
     "OHLCV_CONTRACT",
     "PORTFOLIO_CONTRACT",
-    # providers
-    "DataProvider",
-    "YahooFinanceProvider",
-    "AlphaVantageProvider",
-    "CSVProvider",
-    "SimulatedProvider",
-    "DataProviderFactory",
-    "MultiProviderAggregator",
 ]
+
+# Add legacy providers to __all__ if they're available
+if DataProvider is not None:
+    __all__.extend([
+        "DataProvider",
+        "YahooFinanceProvider",
+        "CSVProvider",
+        "SimulatedProvider",
+        "DataProviderFactory",
+        "MultiProviderAggregator",
+    ])

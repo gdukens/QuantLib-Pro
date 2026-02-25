@@ -1,0 +1,23 @@
+{
+  "name": "quantlib",
+  "clientId": "35a64bba4b7d4daeaaa0cc6d2b7845ed",
+  "clientAuthType": "Confidential Client Application - Machine Authorization",
+  "owners": [
+    "UOTTAWA_CA-2235705"
+  ],
+  "jwk": {
+    "kty": "RSA",
+    "use": "sig",
+    "alg": "RS256",
+    "kid": "dc759bc6a55042679fdabf87111ba312",
+    "d": "W5ayCeUULcTrc2dMA4-_k0gQHMyyjFYgR-pXNpHzOh5gS97GBxK30U7Yvtp3365mcQUiEguYIZ0Q-bDVOs02q24EkJVS8SO3XAbFqD7bOGZxr31LOkAq-x_E3ac6-vlnP_silb1T5Gk5tW1TS6gTHQikZQp0UQFS4IfOmLPUknaF8hfKhwXUoezpjPOMTgj27pGo35_MjmfIwEZiJ8_2k0ehf1j1HMexJ0R3YSmhhuwulp0ZSISzVvsdc091L6p3p47QFypdJB11snkCJDw-Zrw4fxDV7mrwzcM5pavHjtEkHn187z3PK1dIkP5fi6IHmnNfF2CJ3oPdkImgOOqgYQ",
+    "n": "oXpEfMjdLABIrD8il4mtUqr737E1llT9GBEvB7Gcot9fabGc0FH5XHfYpWsDg2r0V-bJpJS3jt7Ekjw2LwNX6KwB3RUnPqldviX44s2VjQcYFwXUzV0CXT11avDFQZDjYzcj9KZX_8KAMoQDXhkriGoDWEg9PBCqXgLNyMGV_CvB0u_xZH61IhOaF4RW2iDUguepUSEMar_5-QJv5pA_hq26rvAd2_6sSPQ773XHWiYP0px5mqYaA3nHfYUYBgn3_XxOxn2rMgrKd8bNR_9EKFHH3jcarx1D80Nwdlh8pIPrGQILFHwkms-sraWbXoRDA0rVt3WEs_tuGFEAxGL35w",
+    "e": "AQAB",
+    "p": "7Fnm09phbZh1MifmsW99nKTeDrC5g3zSI-Uo2a18JBkeesk56VLp9X8uHcqfuD_zbfLsQ6Prr4_BJGKsMSMZAUtQBcpX59gzWkJBjJHXy5TRPv0elV-Il-OrFgZjCKJvm39Brab8SXxLzgn_pgpcEVOrixSJAFoxlxmoQm2Yl10",
+    "q": "rubiL7OZPv_eu7kXbO7bfclRUHWlWbmkLgJV64XW0yXyt_wCJpypZxmfj3asVVhOTqklbTaR5O5RmyeKXDfDRE-sWzxC7xRZOu60Wt-KtPezx06drdarEt0gsMPxEIsYq7jsnEJCIfa4Luk9qMmjAbHcU5IKLVykNZAdu6Y-7BM",
+    "dp": "sbU29XtxXfIPzFJsBmWJ0Mm1nN4L3m1vo0WeXW0vtgSdAj1iqaiJ-OhTSFsdlG-hHL5WHtWVVD-GPVFjnt6A4pQ56uClD9Fjay3-Ey9lTdDrM60l3bIjBfFMphbPR6K6v_QC8gpoDujCJn0mFzYa23xJsx0RlY47Ux0bgjbdUJE",
+    "dq": "DFJVsvibHjYWcfErNlBphCYPpXR0TqrmZxthBDOsm7l7rPyDBkdZI9tJQ2kf4O9UrPP7oAMNKiyj8SNK-w4uonxebxsCuCcd1ioE6LYA5pjgwHTIZPvPl4eeivVy4TB7b3WarbN5Rz1DYoKqBl8WLcNi-zw5nVJ-ewuJHLQskKM",
+    "qi": "p8JZzgeWa2Dq10os01Jva8SiU8XibCXOdVQA211xQUlvihcuNp9c0AkmgfXa2lmbLcci_78L_5e85eFeth-8ArDI2ITezhknsl6tfDIGOo4xMRsW5zv9y9R6JsthvIxZoKMgUETrKIS5qZcPp5OgAmJ_eWhJK18XdSpdsRhKYcw"
+  },
+  "wellKnownUri": "https://auth.factset.com/.well-known/openid-configuration"
+}

@@ -17,7 +17,7 @@ from quantlib_pro.execution.backtesting import (
     MeanReversionStrategy,
     MomentumStrategy,
 )
-from quantlib_pro.data.providers import DataProviderFactory
+from quantlib_pro.data.market_data import MarketDataProvider
 
 st.set_page_config(page_title="Backtesting", page_icon="📊", layout="wide")
 
@@ -27,18 +27,11 @@ st.markdown("Test trading strategies with historical data and analyze performanc
 # Sidebar configuration
 st.sidebar.header("Configuration")
 
-# Data provider selection
-provider_type = st.sidebar.selectbox(
-    "Data Provider",
-    options=['simulated', 'yahoo'],
-    help="Choose data source for backtesting"
-)
+# Data provider selection (Yahoo Finance only)
+provider_type = 'yahoo'
 
-# Symbol input (for non-simulated data)
-if provider_type == 'yahoo':
-    symbol = st.sidebar.text_input("Symbol", value="SPY", help="Ticker symbol to backtest")
-else:
-    symbol = "SIMULATED"
+# Symbol input
+symbol = st.sidebar.text_input("Symbol", value="SPY", help="Ticker symbol to backtest")
 
 # Date range
 col1, col2 = st.sidebar.columns(2)
@@ -118,17 +111,13 @@ run_backtest = st.sidebar.button("🚀 Run Backtest", type="primary", use_contai
 if run_backtest:
     with st.spinner("Fetching data and running backtest..."):
         try:
-            # 1. Fetch data
-            if provider_type == 'yahoo':
-                provider = DataProviderFactory.create('yahoo')
-            else:
-                provider = DataProviderFactory.create('simulated', seed=42)
+            # 1. Fetch data from Yahoo Finance
+            provider = MarketDataProvider()
             
-            data = provider.fetch_historical(
-                symbol=symbol,
+            data = provider.get_stock_data(
+                ticker=symbol,
                 start_date=str(start_date),
-                end_date=str(end_date),
-                interval='1d'
+                end_date=str(end_date)
             )
             
             st.success(f"✓ Fetched {len(data)} bars of data")

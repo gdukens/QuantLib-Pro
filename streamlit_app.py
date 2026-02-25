@@ -152,8 +152,8 @@ with st.sidebar:
     st.markdown("### Data Source")
     data_source = st.selectbox(
         "Choose data provider",
-        ["Yahoo Finance", "Alpha Vantage", "Simulated Data"],
-        index=2,
+        ["Yahoo Finance", "Alpha Vantage"],
+        index=0,
     )
     
     st.markdown("### Date Range")

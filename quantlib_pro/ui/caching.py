@@ -54,18 +54,25 @@ def cached_market_data(ticker: str, start_date: str, end_date: str) -> pd.DataFr
     Returns:
         DataFrame with price data
     """
-    # This would normally call MarketDataProvider
-    # For now, simulate data
-    dates = pd.date_range(start=start_date, end=end_date, freq="D")
+    from quantlib_pro.data.market_data import MarketDataProvider
     
-    np.random.seed(hash(ticker) % 2**32)
-    returns = np.random.normal(0.0005, 0.015, len(dates))
-    prices = 100 * np.exp(np.cumsum(returns))
+    provider = MarketDataProvider()
+    df = provider.get_stock_data(
+        ticker=ticker,
+        start_date=start_date,
+        end_date=end_date
+    )
+    
+    if df.empty:
+        raise ValueError(f"No data available for {ticker}")
+    
+    # Calculate returns
+    returns = df['Close'].pct_change().dropna()
     
     return pd.DataFrame({
-        "date": dates,
-        "close": prices,
-        "returns": returns,
+        "date": df.index,
+        "close": df['Close'].values,
+        "returns": returns.values if len(returns) > 0 else [],
     })
 
 
@@ -88,18 +95,45 @@ def cached_portfolio_optimization(
     Returns:
         Dict with optimization results
     """
-    # Simulate optimization
-    returns = np.random.uniform(0.05, 0.20, num_points)
-    volatilities = np.random.uniform(0.10, 0.40, num_points)
-    sharpe_ratios = (returns - risk_free_rate) / volatilities
+    from quantlib_pro.portfolio.optimizer import PortfolioOptimizer
+    from quantlib_pro.data.market_data import MarketDataProvider
+    import pandas as pd
+    from datetime import datetime, timedelta
     
-    optimal_idx = np.argmax(sharpe_ratios)
+    # Fetch real market data
+    provider = MarketDataProvider()
+    end_date = datetime.now().strftime('%Y-%m-%d')
+    start_date = (datetime.now() - timedelta(days=365)).strftime('%Y-%m-%d')
+    
+    returns_data = {}
+    for ticker in tickers:
+        df = provider.get_stock_data(ticker, start_date, end_date)
+        if not df.empty:
+            returns_data[ticker] = df['Close'].pct_change().dropna()
+    
+    if not returns_data:
+        raise ValueError("No data available for any ticker")
+    
+    # Align returns
+    returns_df = pd.DataFrame(returns_data)
+    expected_returns = returns_df.mean() * 252
+    cov_matrix = returns_df.cov() * 252
+    
+    # Run optimization
+    optimizer = PortfolioOptimizer(
+        expected_returns=expected_returns,
+        cov_matrix=cov_matrix,
+        risk_free_rate=risk_free_rate,
+        tickers=list(tickers)
+    )
+    
+    frontier = optimizer.efficient_frontier(num_points=num_points)
     
     return {
-        "returns": returns,
-        "volatilities": volatilities,
-        "sharpe_ratios": sharpe_ratios,
-        "optimal_idx": optimal_idx,
+        "returns": frontier['returns'],
+        "volatilities": frontier['volatilities'],
+        "sharpe_ratios": frontier['sharpe_ratios'],
+        "optimal_idx": frontier.get('optimal_idx', 0),
     }
 
 
@@ -210,13 +244,22 @@ def cached_correlation_matrix(tickers: tuple, start_date: str, end_date: str) ->
     Returns:
         Correlation matrix DataFrame
     """
-    # Simulate returns for all tickers
-    dates = pd.date_range(start=start_date, end=end_date, freq="D")
+    from quantlib_pro.data.market_data import MarketDataProvider
+    
+    provider = MarketDataProvider()
     returns_dict = {}
     
     for ticker in tickers:
-        np.random.seed(hash(ticker) % 2**32)
-        returns_dict[ticker] = np.random.normal(0.0005, 0.02, len(dates))
+        try:
+            df = provider.get_stock_data(ticker, start_date, end_date)
+            if not df.empty:
+                returns_dict[ticker] = df['Close'].pct_change().dropna()
+        except Exception as e:
+            # Skip tickers that fail to load
+            continue
+    
+    if not returns_dict:
+        raise ValueError("No data available for any ticker")
     
     returns_df = pd.DataFrame(returns_dict)
     return returns_df.corr()

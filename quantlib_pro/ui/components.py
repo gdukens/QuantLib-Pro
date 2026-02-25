@@ -387,7 +387,11 @@ def data_table(
     if title:
         st.markdown(f"#### {title}")
     
-    st.dataframe(data, height=height, use_container_width=True)
+    # Use default height if not specified
+    if height is None:
+        height = 400
+    
+    st.dataframe(data, height=height, width="stretch")
 
 
 def error_message(message: str):

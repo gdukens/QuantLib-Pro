@@ -348,52 +348,96 @@ def price_with_greeks(
 
 
 def implied_volatility(
-    market_price: float,
-    S: float,
-    K: float,
-    T: float,
-    r: float,
-    option_type: OptionType,
+    market_price: float = None,
+    S: float = None,
+    K: float = None,
+    T: float = None,
+    r: float = None,
+    option_type: OptionType = None,
     tolerance: float = 1e-6,
     max_iterations: int = 100,
-) -> float:
+    # Alternative parameter names for backward compatibility
+    option_price: float = None,
+    spot: float = None,
+    strike: float = None,
+    q: float = 0.0,  # Dividend yield (continuous)
+    initial_guess: float = None,
+) -> dict:
     """
     Compute implied volatility via Newton-Raphson iteration.
 
     Parameters
     ----------
     market_price : float
-        Observed market price of the option.
+        Observed market price of the option (alias: option_price).
+    S : float
+        Current stock price (alias: spot).
+    K : float
+        Strike price (alias: strike).
+    T : float
+        Time to expiration in years.
+    r : float
+        Risk-free rate (annualized).
+    option_type : OptionType
+        CALL or PUT.
     tolerance : float
         Convergence tolerance for the iterative solver.
     max_iterations : int
         Maximum number of Newton-Raphson iterations.
+    q : float, optional
+        Dividend yield (continuous, annualized). Default 0.0.
+    initial_guess : float, optional
+        Initial volatility guess. If None, uses ATM approximation.
 
     Returns
     -------
-    float
-        Implied volatility (annualized).
+    dict
+        Dictionary containing:
+        - implied_volatility: float (annualized IV)
+        - iterations: int (number of iterations used)
+        - convergence_error: float (final price difference)
 
     Raises
     ------
     RuntimeError
         If the solver fails to converge.
     """
-    validate_black_scholes_inputs(S, K, T, r, 0.2)  # use a fake sigma for validation
+    # Handle alternative parameter names
+    price_param = market_price if market_price is not None else option_price
+    S_param = S if S is not None else spot
+    K_param = K if K is not None else strike
     
-    # Initial guess: ATM approximation
-    sigma_guess = math.sqrt(2 * math.pi / T) * (market_price / S)
-    sigma_guess = max(0.01, min(sigma_guess, 3.0))  # clamp to [1%, 300%]
+    if price_param is None or S_param is None or K_param is None:
+        raise ValueError("Must provide market_price/option_price, S/spot, and K/strike")
+    if T is None or r is None or option_type is None:
+        raise ValueError("Must provide T, r, and option_type")
+    
+    validate_black_scholes_inputs(S_param, K_param, T, r, 0.2)  # use a fake sigma for validation
+    
+    # Adjust stock price for dividend yield (continuous dividend)
+    S_adjusted = S_param * math.exp(-q * T) if q != 0 else S_param
+    
+    # Initial guess
+    if initial_guess is not None:
+        sigma_guess = initial_guess
+    else:
+        # ATM approximation
+        sigma_guess = math.sqrt(2 * math.pi / T) * (price_param / S_adjusted)
+        sigma_guess = max(0.01, min(sigma_guess, 3.0))  # clamp to [1%, 300%]
 
     for iteration in range(max_iterations):
-        model_price = price(S, K, T, r, sigma_guess, option_type)
-        diff = model_price - market_price
+        model_price = price(S_adjusted, K_param, T, r, sigma_guess, option_type)
+        diff = model_price - price_param
 
         if abs(diff) < tolerance:
-            return sigma_guess
+            return {
+                "implied_volatility": sigma_guess,
+                "iterations": iteration + 1,
+                "convergence_error": abs(diff),
+            }
 
         # Newton step: vega is dPrice/dSigma
-        vega_val = vega(S, K, T, r, sigma_guess)
+        vega_val = vega(S_adjusted, K_param, T, r, sigma_guess)
         if vega_val < 1e-10:
             raise RuntimeError(
                 f"Vega too small at iteration {iteration} — cannot invert for IV"

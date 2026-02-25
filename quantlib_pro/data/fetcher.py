@@ -8,7 +8,6 @@ Level  Label            Description
   3    file_cache       Parquet files  (10-50 ms)
   4    yfinance         Yahoo Finance HTTP  (300-2000 ms)
   5    alternative_api  Placeholder for a secondary data provider
-  6    synthetic        GBM simulation — flagged, never cached
 """
 
 from __future__ import annotations
@@ -87,7 +86,6 @@ class ResilientDataFetcher:
             ("cache",         self._try_cache,       DataSource.MEMORY_CACHE),
             ("yfinance",      self._try_yfinance,    DataSource.YFINANCE),
             ("alternative",   self._try_alt_api,     DataSource.ALTERNATIVE_API),
-            ("synthetic",     self._try_synthetic,   DataSource.SYNTHETIC),
         ]
 
         for level_name, method, source in methods:
@@ -111,9 +109,8 @@ class ResilientDataFetcher:
                 len(df),
             )
 
-            # Cache live data only (not synthetic)
-            if source != DataSource.SYNTHETIC:
-                self._prime_cache(cache_key, df)
+            # Cache the data
+            self._prime_cache(cache_key, df)
 
             return PriceData(
                 ticker=ticker,
@@ -179,54 +176,6 @@ class ResilientDataFetcher:
 
         cb = registry.get("alternative_api", failure_threshold=3, recovery_timeout=300)
         return cb.call(_call)
-
-    def _try_synthetic(
-        self,
-        ticker: str,
-        cache_key: str,
-        start: Optional[str],
-        end: Optional[str],
-        period: str,
-    ) -> pd.DataFrame:
-        """
-        Geometric Brownian Motion fallback.
-
-        Only produced when *all* live sources are unavailable.
-        The resulting :class:`PriceData` is clearly flagged as
-        ``DataSource.SYNTHETIC``.
-        """
-        log.warning(
-            "⚠  Generating SYNTHETIC data for %s — live sources unavailable", ticker
-        )
-        n_days = 252
-        dt = 1 / 252
-        mu = 0.07
-        sigma = 0.20
-        s0 = 100.0
-
-        rng = np.random.default_rng(abs(hash(ticker)) % (2**32))
-        z = rng.standard_normal(n_days)
-        log_returns = (mu - 0.5 * sigma**2) * dt + sigma * np.sqrt(dt) * z
-        prices = s0 * np.exp(np.cumsum(log_returns))
-        prices = np.insert(prices, 0, s0)[:-1]
-
-        dates = pd.bdate_range(end=datetime.utcnow().date(), periods=n_days)
-        volumes = rng.integers(1_000_000, 10_000_000, size=n_days).astype(float)
-
-        df = pd.DataFrame(
-            {
-                "Open": prices * (1 + rng.uniform(-0.005, 0.005, n_days)),
-                "High": prices * (1 + rng.uniform(0.000, 0.015, n_days)),
-                "Low": prices * (1 - rng.uniform(0.000, 0.015, n_days)),
-                "Close": prices,
-                "Volume": volumes,
-            },
-            index=dates,
-        )
-        # Enforce OHLCV constraints post-generation
-        df["High"] = df[["Open", "High", "Close"]].max(axis=1)
-        df["Low"] = df[["Open", "Low", "Close"]].min(axis=1)
-        return df
 
     # ----------------------------------------------------------------- helpers
 

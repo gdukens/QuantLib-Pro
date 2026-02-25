@@ -39,6 +39,15 @@
 - **Transition probability analysis**
 - **Regime persistence metrics**
 
+### Data Sources & Providers
+- **Multi-provider failover** - 6-level fallback chain with circuit breakers
+- **Yahoo Finance** - Primary free source (unlimited, no API key)
+- **Alpha Vantage** - Free tier (500 calls/day) + premium options
+- **FactSet** - Enterprise data with fundamentals & global coverage
+- **Capital IQ** - Coming soon (S&P Global Market Intelligence)
+- **Resilient caching** - 3-tier (Memory → Redis → File) with automatic invalidation
+- **Synthetic data** - GBM fallback for offline testing
+
 ### Backtesting
 - **Event-driven backtesting** engine
 - **Transaction cost modeling** - Slippage, commissions, market impact
@@ -493,7 +502,9 @@ MIT License - see [LICENSE](LICENSE) file for details.
 - **Hull, J. C.** - Options, Futures, and Other Derivatives (benchmarks)
 - **Markowitz, H.** - Modern Portfolio Theory
 - **Black, F. & Scholes, M.** - Options pricing model
-- **yfinance** - Market data provider
+- **yfinance** - Primary market data provider (Yahoo Finance)
+- **Alpha Vantage** - Alternative market data API
+- **FactSet** - Enterprise financial data platform
 - **Streamlit** - Web UI framework
 - **NumPy/SciPy** - Scientific computing
 - **Plotly** - Interactive visualizations

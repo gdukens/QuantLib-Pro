@@ -323,3 +323,15 @@ def compute_volatility_smile_curvature(smile: pd.DataFrame) -> float:
     curvature = coeffs[0]  # Quadratic term
     
     return curvature
+
+
+# ─── Convenience Aliases ──────────────────────────────────────────────────────
+
+def construct_volatility_surface(*args, **kwargs):
+    """
+    Alias for build_surface_from_prices.
+    
+    This function provides backward compatibility for UI components
+    that use the construct_volatility_surface naming convention.
+    """
+    return build_surface_from_prices(*args, **kwargs)

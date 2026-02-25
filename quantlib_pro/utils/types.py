@@ -23,11 +23,6 @@ class DataSource(str, Enum):
     FILE_CACHE = "file_cache"
     YFINANCE = "yfinance"
     ALTERNATIVE_API = "alternative_api"
-    SYNTHETIC = "synthetic_DEGRADED_MODE"
-
-    @property
-    def is_degraded(self) -> bool:
-        return self == DataSource.SYNTHETIC
 
     @property
     def is_live(self) -> bool:
@@ -64,7 +59,6 @@ class PriceData:
     df: pd.DataFrame                        # columns: Open/High/Low/Close/Volume
     source: DataSource
     fetched_at: datetime = field(default_factory=datetime.utcnow)
-    is_synthetic: bool = False
 
     def returns(self, method: str = "log") -> pd.Series:
         if method == "log":

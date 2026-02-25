@@ -4,6 +4,7 @@ Consolidates:
 - Black-Scholes-Visual-Explainer
 - Monte-Carlo-Option-Pricing-Simulator
 - Volatility-Surface-Builder
+- Bachelier Model (Arithmetic Brownian Motion)
 """
 # Black-Scholes analytical pricing
 from quantlib_pro.options.black_scholes import (
@@ -17,6 +18,14 @@ from quantlib_pro.options.black_scholes import (
     rho as bs_rho,
     theta as bs_theta,
     vega as bs_vega,
+)
+
+# Bachelier model (Arithmetic Brownian Motion)
+from quantlib_pro.options.bachelier import (
+    BachelierModel,
+    BachelierParams,
+    bachelier_call,
+    bachelier_put,
 )
 
 # Monte Carlo simulation
@@ -51,6 +60,11 @@ __all__ = [
     "bs_vega",
     "bs_theta",
     "bs_rho",
+    # Bachelier
+    "BachelierModel",
+    "BachelierParams",
+    "bachelier_call",
+    "bachelier_put",
     # Monte Carlo
     "MonteCarloConfig",
     "price_european",

@@ -1,0 +1,28 @@
+{
+  "feedback": [
+    {
+      "feedback_id": "FB-0001",
+      "timestamp": "2026-02-23T16:57:12.934285",
+      "user_name": " n",
+      "user_role": "quantitative_analyst",
+      "feedback_type": "bug",
+      "severity": "critical",
+      "title": "nkklk",
+      "description": "mb j",
+      "steps_to_reproduce": [],
+      "expected_behavior": "",
+      "actual_behavior": "",
+      "page": "n",
+      "browser": "",
+      "screenshot_path": null,
+      "status": "new",
+      "assignee": null,
+      "resolution": "",
+      "tags": [],
+      "related_issues": [],
+      "created_at": "2026-02-23T16:57:12.934285",
+      "updated_at": "2026-02-23T16:57:12.934285"
+    }
+  ],
+  "last_updated": "2026-02-23T16:57:12.935705"
+}
