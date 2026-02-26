@@ -1,0 +1,833 @@
+{
+    "info": {
+        "name": "QuantLib Pro API",
+        "description": "Complete REST API collection for QuantLib Pro quantitative finance platform.\n\n**17 domains | 75+ endpoints**\n\n- Portfolio optimization and management\n- Options pricing (Black-Scholes, Greeks)\n- Risk analysis (VaR, CVaR, stress testing)\n- Market regime detection\n- Volatility surfaces\n- Macro analysis\n- Backtesting\n- Advanced analytics\n- Data management\n- Market analysis & technical indicators\n- Trading signals\n- Liquidity metrics\n- Systemic risk\n- Execution optimization (VWAP/TWAP)\n- Compliance\n- UAT & testing\n\n**Authentication:** JWT Bearer token via `/auth/login`",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_postman_id": "quantlib-pro-api-v1"
+    },
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{token}}",
+                "type": "string"
+            }
+        ]
+    },
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    "// Auto-refresh token if expired or missing",
+                    "const token = pm.collectionVariables.get('token');",
+                    "const tokenExpiry = pm.collectionVariables.get('token_expiry');",
+                    "const now = Date.now();",
+                    "",
+                    "if (!token || !tokenExpiry || now > parseInt(tokenExpiry)) {",
+                    "    console.log('Token missing or expired, fetching new one...');",
+                    "    const loginUrl = pm.variables.get('base_url') + '/auth/login';",
+                    "    pm.sendRequest({",
+                    "        url: loginUrl,",
+                    "        method: 'POST',",
+                    "        header: { 'Content-Type': 'application/json' },",
+                    "        body: {",
+                    "            mode: 'raw',",
+                    "            raw: JSON.stringify({",
+                    "                username: pm.variables.get('username'),",
+                    "                password: pm.variables.get('password')",
+                    "            })",
+                    "        }",
+                    "    }, function (err, res) {",
+                    "        if (!err && res.code === 200) {",
+                    "            const data = res.json();",
+                    "            pm.collectionVariables.set('token', data.access_token);",
+                    "            pm.collectionVariables.set('token_expiry', now + 3500000);",
+                    "            console.log('Token refreshed successfully');",
+                    "        }",
+                    "    });",
+                    "}"
+                ]
+            }
+        }
+    ],
+    "variable": [
+        {"key": "base_url", "value": "http://localhost:8000"},
+        {"key": "username", "value": "demo"},
+        {"key": "password", "value": "demo123"},
+        {"key": "token", "value": ""},
+        {"key": "token_expiry", "value": "0"}
+    ],
+    "item": [
+        {
+            "name": "🔑 Authentication",
+            "item": [
+                {
+                    "name": "Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "pm.test('Login successful', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "    const data = pm.response.json();",
+                                    "    pm.expect(data.access_token).to.be.a('string');",
+                                    "    pm.collectionVariables.set('token', data.access_token);",
+                                    "    pm.collectionVariables.set('token_expiry', Date.now() + 3500000);",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {"type": "noauth"},
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"username\": \"{{username}}\",\n    \"password\": \"{{password}}\"\n}"
+                        },
+                        "url": {"raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"]}
+                    }
+                }
+            ]
+        },
+        {
+            "name": "❤️ Health",
+            "item": [
+                {
+                    "name": "Health Check",
+                    "event": [{"listen": "test", "script": {"exec": ["pm.test('API is healthy', function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}],
+                    "request": {
+                        "method": "GET",
+                        "url": {"raw": "{{base_url}}/health", "host": ["{{base_url}}"], "path": ["health"]}
+                    }
+                },
+                {
+                    "name": "Detailed Health",
+                    "request": {
+                        "method": "GET",
+                        "url": {"raw": "{{base_url}}/health/detailed", "host": ["{{base_url}}"], "path": ["health", "detailed"]}
+                    }
+                }
+            ]
+        },
+        {
+            "name": "📊 Portfolio",
+            "item": [
+                {
+                    "name": "Optimize Portfolio",
+                    "event": [{"listen": "test", "script": {"exec": ["pm.test('Optimize successful', function () { pm.response.to.have.status(200); const d = pm.response.json(); pm.expect(d.optimal_weights).to.be.an('object'); });"], "type": "text/javascript"}}],
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"tickers\": [\"AAPL\", \"GOOGL\", \"MSFT\", \"AMZN\", \"TSLA\"],\n    \"budget\": 100000,\n    \"risk_free_rate\": 0.045,\n    \"optimization_target\": \"sharpe\",\n    \"max_position_size\": 0.40\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/portfolio/optimize", "host": ["{{base_url}}"], "path": ["api", "v1", "portfolio", "optimize"]}
+                    }
+                },
+                {
+                    "name": "Portfolio Performance",
+                    "request": {
+                        "method": "GET",
+                        "url": {"raw": "{{base_url}}/api/v1/portfolio/performance?portfolio_id=DEMO_PORT&period_days=252", "host": ["{{base_url}}"], "path": ["api", "v1", "portfolio", "performance"], "query": [{"key": "portfolio_id", "value": "DEMO_PORT"}, {"key": "period_days", "value": "252"}]}
+                    }
+                },
+                {
+                    "name": "Efficient Frontier",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"tickers\": [\"AAPL\", \"GOOGL\", \"MSFT\", \"AMZN\"],\n    \"n_portfolios\": 1000\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/portfolio/efficient-frontier", "host": ["{{base_url}}"], "path": ["api", "v1", "portfolio", "efficient-frontier"]}
+                    }
+                },
+                {
+                    "name": "Sharpe Analysis",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"tickers\": [\"AAPL\", \"GOOGL\", \"MSFT\"],\n    \"risk_free_rate\": 0.045\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/portfolio/sharpe", "host": ["{{base_url}}"], "path": ["api", "v1", "portfolio", "sharpe"]}
+                    }
+                },
+                {
+                    "name": "Rebalance Portfolio",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"portfolio_id\": \"DEMO_PORT\",\n    \"target_weights\": {\"AAPL\": 0.30, \"GOOGL\": 0.30, \"MSFT\": 0.40}\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/portfolio/rebalance", "host": ["{{base_url}}"], "path": ["api", "v1", "portfolio", "rebalance"]}
+                    }
+                }
+            ]
+        },
+        {
+            "name": "⚙️ Options",
+            "item": [
+                {
+                    "name": "Price Option (Black-Scholes)",
+                    "event": [{"listen": "test", "script": {"exec": ["pm.test('Price returned', function () { pm.response.to.have.status(200); const d = pm.response.json(); pm.expect(d.price).to.be.a('number'); });"], "type": "text/javascript"}}],
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"ticker\": \"AAPL\",\n    \"spot_price\": 175.0,\n    \"strike_price\": 180.0,\n    \"time_to_expiry\": 0.25,\n    \"risk_free_rate\": 0.045,\n    \"volatility\": 0.25,\n    \"option_type\": \"call\"\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/options/price", "host": ["{{base_url}}"], "path": ["api", "v1", "options", "price"]}
+                    }
+                },
+                {
+                    "name": "Calculate Greeks",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"spot_price\": 175.0,\n    \"strike_price\": 180.0,\n    \"time_to_expiry\": 0.25,\n    \"risk_free_rate\": 0.045,\n    \"volatility\": 0.25,\n    \"option_type\": \"call\"\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/options/greeks", "host": ["{{base_url}}"], "path": ["api", "v1", "options", "greeks"]}
+                    }
+                },
+                {
+                    "name": "Monte Carlo Pricing",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"spot_price\": 175.0,\n    \"strike_price\": 180.0,\n    \"time_to_expiry\": 0.25,\n    \"risk_free_rate\": 0.045,\n    \"volatility\": 0.25,\n    \"option_type\": \"call\",\n    \"n_simulations\": 10000\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/options/monte-carlo", "host": ["{{base_url}}"], "path": ["api", "v1", "options", "monte-carlo"]}
+                    }
+                },
+                {
+                    "name": "Implied Volatility",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"market_price\": 8.50,\n    \"spot_price\": 175.0,\n    \"strike_price\": 180.0,\n    \"time_to_expiry\": 0.25,\n    \"risk_free_rate\": 0.045,\n    \"option_type\": \"call\"\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/options/implied-volatility", "host": ["{{base_url}}"], "path": ["api", "v1", "options", "implied-volatility"]}
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🛡️ Risk",
+            "item": [
+                {
+                    "name": "Value at Risk (VaR)",
+                    "event": [{"listen": "test", "script": {"exec": ["pm.test('VaR calculated', function () { pm.response.to.have.status(200); const d = pm.response.json(); pm.expect(d.var_95 || d.var).to.be.a('number'); });"], "type": "text/javascript"}}],
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"portfolio_id\": \"DEMO_PORT\",\n    \"confidence_level\": 0.95,\n    \"method\": \"historical\",\n    \"horizon_days\": 10\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/risk/var", "host": ["{{base_url}}"], "path": ["api", "v1", "risk", "var"]}
+                    }
+                },
+                {
+                    "name": "CVaR / Expected Shortfall",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"portfolio_id\": \"DEMO_PORT\",\n    \"confidence_level\": 0.95\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/risk/cvar", "host": ["{{base_url}}"], "path": ["api", "v1", "risk", "cvar"]}
+                    }
+                },
+                {
+                    "name": "Stress Test",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"portfolio_id\": \"DEMO_PORT\",\n    \"scenarios\": [\"2008_crisis\", \"covid_crash\", \"rate_hike\"],\n    \"custom_shocks\": {\"SPY\": -0.30, \"TLT\": 0.10}\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/risk/stress-test", "host": ["{{base_url}}"], "path": ["api", "v1", "risk", "stress-test"]}
+                    }
+                },
+                {
+                    "name": "Tail Risk Analysis",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"tickers\": [\"AAPL\", \"GOOGL\", \"MSFT\"],\n    \"threshold_percentile\": 0.05\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/risk/tail-risk", "host": ["{{base_url}}"], "path": ["api", "v1", "risk", "tail-risk"]}
+                    }
+                },
+                {
+                    "name": "Drawdown Analysis",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"portfolio_id\": \"DEMO_PORT\",\n    \"period_days\": 252\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/risk/drawdown", "host": ["{{base_url}}"], "path": ["api", "v1", "risk", "drawdown"]}
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🎯 Market Regime",
+            "item": [
+                {
+                    "name": "Detect Regime",
+                    "event": [{"listen": "test", "script": {"exec": ["pm.test('Regime detected', function () { pm.response.to.have.status(200); const d = pm.response.json(); pm.expect(d.current_regime || d.regime).to.be.a('string'); });"], "type": "text/javascript"}}],
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"tickers\": [\"SPY\"],\n    \"lookback_days\": 252,\n    \"method\": \"hmm\"\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/regime/detect", "host": ["{{base_url}}"], "path": ["api", "v1", "regime", "detect"]}
+                    }
+                },
+                {
+                    "name": "Current Regime",
+                    "request": {
+                        "method": "GET",
+                        "url": {"raw": "{{base_url}}/api/v1/regime/current?ticker=SPY", "host": ["{{base_url}}"], "path": ["api", "v1", "regime", "current"], "query": [{"key": "ticker", "value": "SPY"}]}
+                    }
+                },
+                {
+                    "name": "Regime History",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"ticker\": \"SPY\",\n    \"start_date\": \"2024-01-01\",\n    \"end_date\": \"2026-02-25\"\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/regime/history", "host": ["{{base_url}}"], "path": ["api", "v1", "regime", "history"]}
+                    }
+                },
+                {
+                    "name": "Regime Probabilities",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"ticker\": \"SPY\"\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/regime/probabilities", "host": ["{{base_url}}"], "path": ["api", "v1", "regime", "probabilities"]}
+                    }
+                }
+            ]
+        },
+        {
+            "name": "📉 Volatility",
+            "item": [
+                {
+                    "name": "Volatility Surface",
+                    "event": [{"listen": "test", "script": {"exec": ["pm.test('Surface returned', function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}],
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"ticker\": \"AAPL\",\n    \"strikes\": [150, 160, 170, 180, 190, 200],\n    \"expiries\": [0.083, 0.25, 0.5, 1.0]\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/volatility/surface", "host": ["{{base_url}}"], "path": ["api", "v1", "volatility", "surface"]}
+                    }
+                },
+                {
+                    "name": "GARCH Forecast",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"ticker\": \"AAPL\",\n    \"horizon_days\": 30\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/volatility/garch", "host": ["{{base_url}}"], "path": ["api", "v1", "volatility", "garch"]}
+                    }
+                },
+                {
+                    "name": "Realized Volatility",
+                    "request": {
+                        "method": "GET",
+                        "url": {"raw": "{{base_url}}/api/v1/volatility/realized?ticker=AAPL&window=30", "host": ["{{base_url}}"], "path": ["api", "v1", "volatility", "realized"], "query": [{"key": "ticker", "value": "AAPL"}, {"key": "window", "value": "30"}]}
+                    }
+                },
+                {
+                    "name": "Term Structure",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"ticker\": \"AAPL\"\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/volatility/term-structure", "host": ["{{base_url}}"], "path": ["api", "v1", "volatility", "term-structure"]}
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🌍 Macro",
+            "item": [
+                {
+                    "name": "Macro Indicators",
+                    "event": [{"listen": "test", "script": {"exec": ["pm.test('Indicators returned', function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}],
+                    "request": {
+                        "method": "GET",
+                        "url": {"raw": "{{base_url}}/api/v1/macro/indicators", "host": ["{{base_url}}"], "path": ["api", "v1", "macro", "indicators"]}
+                    }
+                },
+                {
+                    "name": "Correlation Regime",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"tickers\": [\"SPY\", \"TLT\", \"GLD\", \"UUP\"],\n    \"lookback_days\": 252\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/macro/correlation-regime", "host": ["{{base_url}}"], "path": ["api", "v1", "macro", "correlation-regime"]}
+                    }
+                },
+                {
+                    "name": "Economic Calendar",
+                    "request": {
+                        "method": "GET",
+                        "url": {"raw": "{{base_url}}/api/v1/macro/calendar?days_ahead=30", "host": ["{{base_url}}"], "path": ["api", "v1", "macro", "calendar"], "query": [{"key": "days_ahead", "value": "30"}]}
+                    }
+                }
+            ]
+        },
+        {
+            "name": "📈 Backtesting",
+            "item": [
+                {
+                    "name": "List Strategies",
+                    "event": [{"listen": "test", "script": {"exec": ["pm.test('Strategies listed', function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}],
+                    "request": {
+                        "method": "GET",
+                        "url": {"raw": "{{base_url}}/api/v1/backtesting/strategies", "host": ["{{base_url}}"], "path": ["api", "v1", "backtesting", "strategies"]}
+                    }
+                },
+                {
+                    "name": "Run Backtest",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"strategy_id\": \"ma_crossover\",\n    \"tickers\": [\"AAPL\", \"GOOGL\"],\n    \"start_date\": \"2023-01-01\",\n    \"end_date\": \"2026-01-01\",\n    \"initial_capital\": 100000,\n    \"params\": {\"short_window\": 20, \"long_window\": 50}\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/backtesting/run", "host": ["{{base_url}}"], "path": ["api", "v1", "backtesting", "run"]}
+                    }
+                },
+                {
+                    "name": "Strategy Performance",
+                    "request": {
+                        "method": "GET",
+                        "url": {"raw": "{{base_url}}/api/v1/backtesting/performance?backtest_id=BT_001", "host": ["{{base_url}}"], "path": ["api", "v1", "backtesting", "performance"], "query": [{"key": "backtest_id", "value": "BT_001"}]}
+                    }
+                },
+                {
+                    "name": "Compare Strategies",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"strategy_ids\": [\"ma_crossover\", \"rsi_mean_reversion\", \"momentum\"],\n    \"tickers\": [\"SPY\"],\n    \"start_date\": \"2023-01-01\",\n    \"end_date\": \"2026-01-01\"\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/backtesting/compare", "host": ["{{base_url}}"], "path": ["api", "v1", "backtesting", "compare"]}
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🔬 Analytics",
+            "item": [
+                {
+                    "name": "Correlation Matrix",
+                    "event": [{"listen": "test", "script": {"exec": ["pm.test('Correlation computed', function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}],
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"tickers\": [\"AAPL\", \"GOOGL\", \"MSFT\", \"AMZN\", \"TSLA\"],\n    \"lookback_days\": 252\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/analytics/correlation", "host": ["{{base_url}}"], "path": ["api", "v1", "analytics", "correlation"]}
+                    }
+                },
+                {
+                    "name": "PCA Analysis",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"tickers\": [\"AAPL\", \"GOOGL\", \"MSFT\", \"AMZN\", \"TSLA\", \"META\", \"NVDA\"],\n    \"n_components\": 3\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/analytics/pca", "host": ["{{base_url}}"], "path": ["api", "v1", "analytics", "pca"]}
+                    }
+                },
+                {
+                    "name": "Factor Analysis",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"tickers\": [\"AAPL\", \"GOOGL\", \"MSFT\"],\n    \"factors\": [\"SPY\", \"TLT\", \"GLD\"]\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/analytics/factor-analysis", "host": ["{{base_url}}"], "path": ["api", "v1", "analytics", "factor-analysis"]}
+                    }
+                },
+                {
+                    "name": "Return Attribution",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"portfolio_id\": \"DEMO_PORT\",\n    \"benchmark\": \"SPY\"\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/analytics/attribution", "host": ["{{base_url}}"], "path": ["api", "v1", "analytics", "attribution"]}
+                    }
+                }
+            ]
+        },
+        {
+            "name": "💾 Data",
+            "item": [
+                {
+                    "name": "Market Status",
+                    "event": [{"listen": "test", "script": {"exec": ["pm.test('Status returned', function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}],
+                    "request": {
+                        "method": "GET",
+                        "url": {"raw": "{{base_url}}/api/v1/data/market-status", "host": ["{{base_url}}"], "path": ["api", "v1", "data", "market-status"]}
+                    }
+                },
+                {
+                    "name": "Stock Quote",
+                    "request": {
+                        "method": "GET",
+                        "url": {"raw": "{{base_url}}/api/v1/data/quote/AAPL", "host": ["{{base_url}}"], "path": ["api", "v1", "data", "quote", "AAPL"]}
+                    }
+                },
+                {
+                    "name": "Historical Data",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"tickers\": [\"AAPL\", \"GOOGL\"],\n    \"start_date\": \"2025-01-01\",\n    \"end_date\": \"2026-02-25\",\n    \"interval\": \"1d\"\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/data/historical", "host": ["{{base_url}}"], "path": ["api", "v1", "data", "historical"]}
+                    }
+                },
+                {
+                    "name": "Data Quality Check",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"tickers\": [\"AAPL\", \"GOOGL\", \"MSFT\"]\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/data/quality-check", "host": ["{{base_url}}"], "path": ["api", "v1", "data", "quality-check"]}
+                    }
+                }
+            ]
+        },
+        {
+            "name": "📊 Market Analysis",
+            "item": [
+                {
+                    "name": "Technical Analysis",
+                    "event": [{"listen": "test", "script": {"exec": ["pm.test('Analysis returned', function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}],
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"ticker\": \"AAPL\",\n    \"indicators\": [\"RSI\", \"MACD\", \"Bollinger\", \"ATR\"],\n    \"lookback_days\": 100\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/market-analysis/technical-analysis", "host": ["{{base_url}}"], "path": ["api", "v1", "market-analysis", "technical-analysis"]}
+                    }
+                },
+                {
+                    "name": "Volatility Comparison",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"tickers\": [\"AAPL\", \"GOOGL\", \"MSFT\", \"TSLA\"],\n    \"window\": 30\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/market-analysis/volatility-comparison", "host": ["{{base_url}}"], "path": ["api", "v1", "market-analysis", "volatility-comparison"]}
+                    }
+                },
+                {
+                    "name": "Trend Analysis",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"ticker\": \"SPY\",\n    \"lookback_days\": 252\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/market-analysis/trend-analysis", "host": ["{{base_url}}"], "path": ["api", "v1", "market-analysis", "trend-analysis"]}
+                    }
+                },
+                {
+                    "name": "Market Screener",
+                    "request": {
+                        "method": "GET",
+                        "url": {"raw": "{{base_url}}/api/v1/market-analysis/screener?criteria=oversold&universe=SP500", "host": ["{{base_url}}"], "path": ["api", "v1", "market-analysis", "screener"], "query": [{"key": "criteria", "value": "oversold"}, {"key": "universe", "value": "SP500"}]}
+                    }
+                },
+                {
+                    "name": "Price Levels",
+                    "request": {
+                        "method": "GET",
+                        "url": {"raw": "{{base_url}}/api/v1/market-analysis/price-levels/AAPL", "host": ["{{base_url}}"], "path": ["api", "v1", "market-analysis", "price-levels", "AAPL"]}
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🔔 Trading Signals",
+            "item": [
+                {
+                    "name": "Generate Signals",
+                    "event": [{"listen": "test", "script": {"exec": ["pm.test('Signals generated', function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}],
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"ticker\": \"AAPL\",\n    \"strategies\": [\"MA_Crossover\", \"RSI\", \"MACD\", \"Bollinger\", \"Momentum\"],\n    \"lookback_days\": 100\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/signals/generate", "host": ["{{base_url}}"], "path": ["api", "v1", "signals", "generate"]}
+                    }
+                },
+                {
+                    "name": "Backtest Signal",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"ticker\": \"AAPL\",\n    \"strategy\": \"MA_Crossover\",\n    \"start_date\": \"2024-01-01\",\n    \"end_date\": \"2026-02-01\",\n    \"initial_capital\": 100000\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/signals/backtest", "host": ["{{base_url}}"], "path": ["api", "v1", "signals", "backtest"]}
+                    }
+                },
+                {
+                    "name": "Screen Universe",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"universe\": [\"AAPL\", \"GOOGL\", \"MSFT\", \"AMZN\", \"TSLA\", \"META\", \"NVDA\"],\n    \"strategies\": [\"RSI\"],\n    \"signal_type\": \"BUY\"\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/signals/screen", "host": ["{{base_url}}"], "path": ["api", "v1", "signals", "screen"]}
+                    }
+                },
+                {
+                    "name": "Current Signals",
+                    "request": {
+                        "method": "GET",
+                        "url": {"raw": "{{base_url}}/api/v1/signals/current/AAPL", "host": ["{{base_url}}"], "path": ["api", "v1", "signals", "current", "AAPL"]}
+                    }
+                }
+            ]
+        },
+        {
+            "name": "💧 Liquidity",
+            "item": [
+                {
+                    "name": "Order Book Simulation",
+                    "event": [{"listen": "test", "script": {"exec": ["pm.test('Order book returned', function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}],
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"ticker\": \"AAPL\",\n    \"levels\": 10,\n    \"volatility\": 0.02\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/liquidity/order-book", "host": ["{{base_url}}"], "path": ["api", "v1", "liquidity", "order-book"]}
+                    }
+                },
+                {
+                    "name": "Liquidity Metrics",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"ticker\": \"AAPL\",\n    \"lookback_days\": 30\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/liquidity/metrics", "host": ["{{base_url}}"], "path": ["api", "v1", "liquidity", "metrics"]}
+                    }
+                },
+                {
+                    "name": "Market Impact",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"ticker\": \"AAPL\",\n    \"order_size\": 50000,\n    \"direction\": \"buy\"\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/liquidity/market-impact", "host": ["{{base_url}}"], "path": ["api", "v1", "liquidity", "market-impact"]}
+                    }
+                },
+                {
+                    "name": "Flash Crash Simulation",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"ticker\": \"SPY\",\n    \"initial_shock\": -0.05,\n    \"cascade_rounds\": 5\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/liquidity/flash-crash", "host": ["{{base_url}}"], "path": ["api", "v1", "liquidity", "flash-crash"]}
+                    }
+                },
+                {
+                    "name": "Intraday Heatmap",
+                    "request": {
+                        "method": "GET",
+                        "url": {"raw": "{{base_url}}/api/v1/liquidity/heatmap/AAPL", "host": ["{{base_url}}"], "path": ["api", "v1", "liquidity", "heatmap", "AAPL"]}
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🌐 Systemic Risk",
+            "item": [
+                {
+                    "name": "Network Analysis",
+                    "event": [{"listen": "test", "script": {"exec": ["pm.test('Network analyzed', function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}],
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"tickers\": [\"JPM\", \"GS\", \"MS\", \"BAC\", \"C\", \"WFC\"],\n    \"correlation_threshold\": 0.5\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/systemic-risk/network-analysis", "host": ["{{base_url}}"], "path": ["api", "v1", "systemic-risk", "network-analysis"]}
+                    }
+                },
+                {
+                    "name": "CoVaR & SRISK",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"institution\": \"JPM\",\n    \"system_tickers\": [\"GS\", \"MS\", \"BAC\", \"C\"],\n    \"confidence_level\": 0.95\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/systemic-risk/covar", "host": ["{{base_url}}"], "path": ["api", "v1", "systemic-risk", "covar"]}
+                    }
+                },
+                {
+                    "name": "Fragility Index",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"portfolio_weights\": {\"AAPL\": 0.3, \"GOOGL\": 0.3, \"MSFT\": 0.4},\n    \"leverage_ratio\": 1.5\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/systemic-risk/fragility-index", "host": ["{{base_url}}"], "path": ["api", "v1", "systemic-risk", "fragility-index"]}
+                    }
+                },
+                {
+                    "name": "Contagion Cascade",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"trigger_institution\": \"JPM\",\n    \"shock_magnitude\": -0.20,\n    \"network_tickers\": [\"GS\", \"MS\", \"BAC\", \"C\", \"WFC\"]\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/systemic-risk/contagion", "host": ["{{base_url}}"], "path": ["api", "v1", "systemic-risk", "contagion"]}
+                    }
+                },
+                {
+                    "name": "Too-Big-To-Fail Scores",
+                    "request": {
+                        "method": "GET",
+                        "url": {"raw": "{{base_url}}/api/v1/systemic-risk/too-big-to-fail", "host": ["{{base_url}}"], "path": ["api", "v1", "systemic-risk", "too-big-to-fail"]}
+                    }
+                }
+            ]
+        },
+        {
+            "name": "⚡ Execution",
+            "item": [
+                {
+                    "name": "Market Impact Models",
+                    "event": [{"listen": "test", "script": {"exec": ["pm.test('Impact calculated', function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}],
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"ticker\": \"AAPL\",\n    \"order_size\": 100000,\n    \"average_daily_volume\": 50000000,\n    \"volatility_daily\": 0.02,\n    \"models\": [\"almgren_chriss\", \"kyle\", \"jpm\", \"square_root\"]\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/execution/market-impact", "host": ["{{base_url}}"], "path": ["api", "v1", "execution", "market-impact"]}
+                    }
+                },
+                {
+                    "name": "VWAP Schedule",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"ticker\": \"AAPL\",\n    \"total_shares\": 50000,\n    \"time_horizon_hours\": 4,\n    \"average_daily_volume\": 50000000,\n    \"volatility_daily\": 0.02\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/execution/vwap-schedule", "host": ["{{base_url}}"], "path": ["api", "v1", "execution", "vwap-schedule"]}
+                    }
+                },
+                {
+                    "name": "TWAP Schedule",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"ticker\": \"AAPL\",\n    \"total_shares\": 50000,\n    \"time_horizon_hours\": 4,\n    \"num_slices\": 8\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/execution/twap-schedule", "host": ["{{base_url}}"], "path": ["api", "v1", "execution", "twap-schedule"]}
+                    }
+                },
+                {
+                    "name": "Optimal Trajectory",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"ticker\": \"AAPL\",\n    \"total_shares\": 100000,\n    \"time_horizon_hours\": 6,\n    \"risk_aversion\": 0.001,\n    \"average_daily_volume\": 50000000,\n    \"volatility_daily\": 0.02\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/execution/optimal-trajectory", "host": ["{{base_url}}"], "path": ["api", "v1", "execution", "optimal-trajectory"]}
+                    }
+                },
+                {
+                    "name": "Cost Analysis",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"execution_id\": \"EXEC_001\",\n    \"fills\": [\n        {\"time\": \"09:30\", \"price\": 175.10, \"quantity\": 10000},\n        {\"time\": \"10:00\", \"price\": 175.25, \"quantity\": 15000},\n        {\"time\": \"10:30\", \"price\": 175.40, \"quantity\": 25000}\n    ],\n    \"arrival_price\": 175.00\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/execution/cost-analysis", "host": ["{{base_url}}"], "path": ["api", "v1", "execution", "cost-analysis"]}
+                    }
+                }
+            ]
+        },
+        {
+            "name": "✅ Compliance",
+            "item": [
+                {
+                    "name": "Trade Compliance Check",
+                    "event": [{"listen": "test", "script": {"exec": ["pm.test('Check completed', function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}],
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"trade\": {\n        \"ticker\": \"AAPL\",\n        \"side\": \"BUY\",\n        \"quantity\": 5000,\n        \"price\": 175.00\n    },\n    \"portfolio_id\": \"DEMO_PORT\",\n    \"checks\": [\"position_limits\", \"restricted_list\", \"wash_sale\", \"pdt\"]\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/compliance/trade-check", "host": ["{{base_url}}"], "path": ["api", "v1", "compliance", "trade-check"]}
+                    }
+                },
+                {
+                    "name": "Audit Log",
+                    "request": {
+                        "method": "GET",
+                        "url": {"raw": "{{base_url}}/api/v1/compliance/audit-log?limit=50&offset=0", "host": ["{{base_url}}"], "path": ["api", "v1", "compliance", "audit-log"], "query": [{"key": "limit", "value": "50"}, {"key": "offset", "value": "0"}]}
+                    }
+                },
+                {
+                    "name": "Policy Evaluate",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"portfolio_id\": \"DEMO_PORT\",\n    \"policies\": [\"position_limits\", \"leverage_limits\", \"concentration_limits\"]\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/compliance/policy/evaluate", "host": ["{{base_url}}"], "path": ["api", "v1", "compliance", "policy", "evaluate"]}
+                    }
+                },
+                {
+                    "name": "Regulatory Report",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"report_type\": \"mifid_ii\",\n    \"period_start\": \"2026-01-01\",\n    \"period_end\": \"2026-02-25\",\n    \"portfolio_id\": \"DEMO_PORT\"\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/compliance/regulatory-report", "host": ["{{base_url}}"], "path": ["api", "v1", "compliance", "regulatory-report"]}
+                    }
+                },
+                {
+                    "name": "GDPR Status",
+                    "request": {
+                        "method": "GET",
+                        "url": {"raw": "{{base_url}}/api/v1/compliance/gdpr/status", "host": ["{{base_url}}"], "path": ["api", "v1", "compliance", "gdpr", "status"]}
+                    }
+                },
+                {
+                    "name": "Position Limits",
+                    "request": {
+                        "method": "GET",
+                        "url": {"raw": "{{base_url}}/api/v1/compliance/position-limits", "host": ["{{base_url}}"], "path": ["api", "v1", "compliance", "position-limits"]}
+                    }
+                }
+            ]
+        },
+        {
+            "name": "🧪 UAT & Testing",
+            "item": [
+                {
+                    "name": "Run UAT Scenarios",
+                    "event": [{"listen": "test", "script": {"exec": ["pm.test('Scenarios executed', function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}],
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"scenario_ids\": [\"portfolio_optimization\", \"risk_calculation\", \"options_pricing\"],\n    \"environment\": \"staging\"\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/uat/scenarios/run", "host": ["{{base_url}}"], "path": ["api", "v1", "uat", "scenarios", "run"]}
+                    }
+                },
+                {
+                    "name": "Bug Reports",
+                    "request": {
+                        "method": "GET",
+                        "url": {"raw": "{{base_url}}/api/v1/uat/bugs?severity=HIGH&status=OPEN", "host": ["{{base_url}}"], "path": ["api", "v1", "uat", "bugs"], "query": [{"key": "severity", "value": "HIGH"}, {"key": "status", "value": "OPEN"}]}
+                    }
+                },
+                {
+                    "name": "Submit Feedback",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"feedback_type\": \"bug\",\n    \"title\": \"Portfolio optimizer slow on 50+ tickers\",\n    \"description\": \"Optimization takes >30s when using more than 50 tickers\",\n    \"severity\": \"MEDIUM\",\n    \"module\": \"portfolio\"\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/uat/feedback", "host": ["{{base_url}}"], "path": ["api", "v1", "uat", "feedback"]}
+                    }
+                },
+                {
+                    "name": "Performance Validation",
+                    "request": {
+                        "method": "GET",
+                        "url": {"raw": "{{base_url}}/api/v1/uat/performance-validation", "host": ["{{base_url}}"], "path": ["api", "v1", "uat", "performance-validation"]}
+                    }
+                },
+                {
+                    "name": "Stress Monitor Analyze",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {"mode": "raw", "raw": "{\n    \"trader_id\": \"TRADER_001\",\n    \"metrics\": {\n        \"session_duration_hours\": 6.5,\n        \"trades_executed\": 142,\n        \"decisions_per_hour\": 35,\n        \"error_rate\": 0.02,\n        \"reaction_time_ms\": 450\n    }\n}"},
+                        "url": {"raw": "{{base_url}}/api/v1/uat/stress-monitor/analyze", "host": ["{{base_url}}"], "path": ["api", "v1", "uat", "stress-monitor", "analyze"]}
+                    }
+                },
+                {
+                    "name": "A/B Tests",
+                    "request": {
+                        "method": "GET",
+                        "url": {"raw": "{{base_url}}/api/v1/uat/ab-tests", "host": ["{{base_url}}"], "path": ["api", "v1", "uat", "ab-tests"]}
+                    }
+                }
+            ]
+        }
+    ]
+}

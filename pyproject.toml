@@ -95,11 +95,11 @@ dev = [
 ]
 
 [project.scripts]
-quantlib = "quantlib_pro.cli:main"
+quantlib = "quantlib_cli.cli:cli"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["quantlib_pro*"]
+include = ["quantlib_pro*", "quantlib_api*", "quantlib_cli*"]
 
 # ─── Black ───────────────────────────────────────────────────────────────────
 [tool.black]
