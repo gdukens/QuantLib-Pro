@@ -7,7 +7,6 @@ Week 12: Streamlit page for Value-at-Risk, stress testing, and tail risk analysi
 import streamlit as st
 import pandas as pd
 import numpy as np
-import plotly.graph_objects as go
 from datetime import datetime, timedelta
 from typing import Dict
 
@@ -19,11 +18,11 @@ from quantlib_pro.data.market_data import MarketDataProvider
 # Page config
 st.set_page_config(
     page_title="Risk Analytics - QuantLib Pro",
-    page_icon="⚠️",
+    page_icon="",
     layout="wide",
 )
 
-st.title("⚠️ Risk Analytics")
+st.title("Risk Analytics")
 st.markdown("Comprehensive risk analysis including VaR, CVaR, stress testing, and tail risk metrics.")
 
 # Initialize session state
@@ -53,13 +52,13 @@ with st.sidebar:
     try:
         weights = [float(w.strip()) for w in weights_input.split("\n") if w.strip()]
         if len(weights) != len(tickers):
-            st.error(f"⚠️ Mismatch: {len(tickers)} tickers but {len(weights)} weights")
+            st.error(f" Mismatch: {len(tickers)} tickers but {len(weights)} weights")
         elif abs(sum(weights) - 1.0) > 0.01:
-            st.warning(f"⚠️ Weights sum to {sum(weights):.2f}, should be 1.0")
+            st.warning(f" Weights sum to {sum(weights):.2f}, should be 1.0")
         else:
-            st.success(f"✅ {len(tickers)} assets, weights sum to {sum(weights):.2f}")
+            st.success(f" {len(tickers)} assets, weights sum to {sum(weights):.2f}")
     except ValueError:
-        st.error("❌ Invalid weight format")
+        st.error(" Invalid weight format")
         weights = []
     
     portfolio_value = st.number_input(
@@ -104,15 +103,10 @@ with st.sidebar:
     )
     
     # Run analysis
-    analyze_button = st.button("📊 Analyze Risk", type="primary", use_container_width=True)
+    analyze_button = st.button(" Analyze Risk", type="primary", use_container_width=True)
 
 # Main content
-tab1, tab2, tab3, tab4 = st.tabs([
-    "📉 VaR Analysis",
-    "💥 Stress Testing",
-    "📊 Tail Risk",
-    "🧠 Trader Stress Monitor"
-])
+tab1, tab2, tab3 = st.tabs([" VaR Analysis", " Stress Testing", " Tail Risk"])
 
 with tab1:
     st.header("Value-at-Risk (VaR) Analysis")
@@ -123,45 +117,24 @@ with tab1:
         else:
             with st.spinner("Calculating VaR..."):
                 try:
-                    # Fetch real market data
-                    data_provider = MarketDataProvider()
+                    # Simulate returns data
+                    dates = pd.date_range(start=start_date, end=end_date, freq="D")
                     returns_data = {}
                     
                     for ticker in tickers:
-                        try:
-                            # Fetch historical data from real data sources
-                            df = data_provider.get_stock_data(
-                                ticker=ticker,
-                                start_date=start_date.strftime('%Y-%m-%d'),
-                                end_date=end_date.strftime('%Y-%m-%d')
-                            )
-                            
-                            if df.empty:
-                                st.error(f"No data available for {ticker}. Please check the ticker symbol.")
-                                st.stop()
-                            
-                            # Calculate returns
-                            daily_returns = df['Close'].pct_change().dropna()
-                            returns_data[ticker] = daily_returns.values
-                            
-                        except Exception as e:
-                            st.error(f"Failed to fetch data for {ticker}: {str(e)}")
-                            st.stop()
+                        np.random.seed(hash(ticker) % 2**32)
+                        daily_returns = np.random.normal(0.0005, 0.02, len(dates))
+                        returns_data[ticker] = daily_returns
                     
-                    # Create returns DataFrame with aligned indices
-                    min_length = min(len(r) for r in returns_data.values())
-                    returns_df = pd.DataFrame({
-                        ticker: returns_data[ticker][:min_length] for ticker in tickers
-                    })
+                    returns_df = pd.DataFrame(returns_data, index=dates)
                     
                     # Calculate portfolio returns
                     portfolio_returns = (returns_df * weights).sum(axis=1)
                     
-                    # Calculate VaR with user-specified time horizon
+                    # Calculate VaR
                     var_result = calculate_var(
                         returns=portfolio_returns.values,
                         confidence_level=confidence_level,
-                        time_horizon=time_horizon,  # Use user-specified time horizon
                         method=var_method,
                         portfolio_value=portfolio_value,
                     )
@@ -172,7 +145,6 @@ with tab1:
                         "cvar": var_result.cvar,
                         "confidence_level": confidence_level,
                         "method": var_method,
-                        "time_horizon": time_horizon,  # Store time horizon for display
                         "portfolio_returns": portfolio_returns,
                         "portfolio_value": portfolio_value,
                         "returns_df": returns_df,
@@ -233,12 +205,11 @@ with tab1:
         
         # Interpretation
         st.subheader("Interpretation")
-        time_period = f"{results['time_horizon']} day{'s' if results['time_horizon'] > 1 else ''}"
         st.markdown(
             f"""
             - **VaR ({results['confidence_level']*100:.0f}%)**: With {results['confidence_level']*100:.0f}% confidence, 
               the portfolio will not lose more than **${abs(var_dollar):,.0f}** 
-              ({abs(results['var'])*100:.2f}%) over **{time_period}**.
+              ({abs(results['var'])*100:.2f}%) in a single day.
             
             - **CVaR ({results['confidence_level']*100:.0f}%)**: If losses exceed the VaR threshold, 
               the expected loss is **${abs(cvar_dollar):,.0f}** 
@@ -263,38 +234,6 @@ with tab2:
         st.subheader("Scenario Analysis")
         st.markdown("Simulate portfolio performance under extreme market conditions.")
         
-        # Calculate actual portfolio beta from real market data
-        try:
-            with st.spinner("Calculating portfolio beta..."):
-                data_provider = MarketDataProvider()
-                
-                # Fetch S&P 500 as market benchmark
-                market_df = data_provider.get_stock_data(
-                    ticker="^GSPC",  # S&P 500
-                    start_date=start_date.strftime('%Y-%m-%d'),
-                    end_date=end_date.strftime('%Y-%m-%d')
-                )
-                
-                if not market_df.empty:
-                    market_returns = market_df['Close'].pct_change().dropna()
-                    
-                    # Align portfolio and market returns
-                    min_length = min(len(results["portfolio_returns"]), len(market_returns))
-                    portfolio_rets = results["portfolio_returns"].values[:min_length]
-                    market_rets = market_returns.values[:min_length]
-                    
-                    # Calculate beta: cov(portfolio, market) / var(market)
-                    covariance = np.cov(portfolio_rets, market_rets)[0, 1]
-                    market_variance = np.var(market_rets)
-                    calculated_beta = covariance / market_variance if market_variance > 0 else 1.0
-                else:
-                    calculated_beta = 1.0  # Fallback if market data unavailable
-        except Exception:
-            calculated_beta = 1.0  # Fallback on error
-        
-        # Display calculated beta
-        st.info(f"📊 **Portfolio Beta**: {calculated_beta:.2f} (calculated from S&P 500 correlation)")
-        
         # Define stress scenarios
         scenarios = {
             "Market Crash (-20%)": -0.20,
@@ -305,12 +244,13 @@ with tab2:
             "Moderate Correction (-10%)": -0.10,
         }
         
-        # Calculate impacts using actual portfolio beta
+        # Calculate impacts
         scenario_impacts = {}
         
         for scenario_name, market_shock in scenarios.items():
-            # Use calculated beta from real portfolio data
-            portfolio_impact = market_shock * calculated_beta
+            # Simple stress test: apply shock to portfolio
+            # In reality, would use correlation structure and asset-specific betas
+            portfolio_impact = market_shock * 1.2  # Assume 1.2 beta to market
             scenario_impacts[scenario_name] = portfolio_impact * 100
         
         # Plot scenarios
@@ -348,9 +288,8 @@ with tab2:
                 "Portfolio Beta",
                 min_value=0.5,
                 max_value=2.0,
-                value=float(np.clip(calculated_beta, 0.5, 2.0)),  # Use calculated beta as default
+                value=1.2,
                 step=0.1,
-                help=f"Calculated beta: {calculated_beta:.2f}",
             )
         
         custom_impact = (custom_shock / 100) * portfolio_beta
@@ -430,18 +369,18 @@ with tab3:
         interpretation = []
         
         if skewness < -0.5:
-            interpretation.append("⚠️ **Negative skew**: Portfolio has asymmetric downside risk (fat left tail)")
+            interpretation.append(" **Negative skew**: Portfolio has asymmetric downside risk (fat left tail)")
         elif skewness > 0.5:
-            interpretation.append("✅ **Positive skew**: Portfolio has asymmetric upside potential")
+            interpretation.append(" **Positive skew**: Portfolio has asymmetric upside potential")
         else:
-            interpretation.append("ℹ️ **Near-symmetric**: Distribution is relatively balanced")
+            interpretation.append("ℹ **Near-symmetric**: Distribution is relatively balanced")
         
         if kurtosis > 3:
-            interpretation.append(f"⚠️ **High kurtosis ({kurtosis:.1f})**: More extreme events than normal distribution predicts")
+            interpretation.append(f" **High kurtosis ({kurtosis:.1f})**: More extreme events than normal distribution predicts")
         elif kurtosis < -1:
-            interpretation.append(f"ℹ️ **Low kurtosis ({kurtosis:.1f})**: Fewer extreme events than normal distribution")
+            interpretation.append(f"ℹ **Low kurtosis ({kurtosis:.1f})**: Fewer extreme events than normal distribution")
         else:
-            interpretation.append(f"ℹ️ **Normal kurtosis ({kurtosis:.1f})**: Similar to normal distribution")
+            interpretation.append(f"ℹ **Normal kurtosis ({kurtosis:.1f})**: Similar to normal distribution")
         
         for item in interpretation:
             st.markdown(item)
@@ -502,196 +441,6 @@ with tab3:
         
     else:
         components.info_message("Run VaR analysis to see tail risk metrics.")
-
-# ============================================================================
-# Tab 4: Real-Time Trader Stress Monitoring
-# ============================================================================
-with tab4:
-    st.header("🧠 Real-Time Trader Stress Monitoring")
-    
-    st.warning("""
-    ⚠️ **NON-FINANCE TOOL** - This is a personal wellness monitoring feature.
-    
-    This tool uses computer vision to detect stress levels based on facial expressions 
-    and micro-movements. It is **NOT** a market stress indicator.
-    
-    **Use Case**: Monitor your own stress levels during trading sessions to maintain 
-    emotional discipline and prevent stress-driven decision making.
-    
-    **Requirements**: Webcam access and proper lighting.
-    """)
-    
-    st.markdown("""
-    ### How It Works
-    
-    The stress detection algorithm analyzes:
-    - **Facial Landmarks**: Eyebrow position, lip tension, facial symmetry
-    - **Micro-expressions**: Rapid involuntary expressions indicating stress
-    - **Blink Rate**: Elevated blinking often correlates with cognitive load
-    - **Head Movement**: Frequent nodding/shaking can indicate anxiety
-    
-    ### Stress Levels
-    - 🟢 **Calm** (Score < 0.08): Relaxed state, optimal for decision-making
-    - 🟡 **Mild** (Score 0.08-0.15): Slightly elevated, maintain awareness
-    - 🔴 **High** (Score > 0.15): Significant stress, consider taking a break
-    """)
-    
-    st.markdown("---")
-    
-    st.info("""
-    🚧 **Implementation Note**
-    
-    This feature requires:
-    1. **MediaPipe Face Landmarker** - Computer vision model for facial tracking
-    2. **OpenCV** - Video capture and processing
-    3. **Webcam Access** - Browser permissions required
-    4. **face_landmarker.task** model file
-    
-    Due to browser security restrictions and model dependencies, this feature 
-    is best run as a standalone application rather than in Streamlit.
-    
-    **To use this feature:**
-    ```bash
-    cd Real-Time-Stress-Detection-main/app
-    python main.py
-    ```
-    
-    The standalone app provides:
-    - Real-time video feed with stress overlay
-    - Stress score meter (0-1 scale)
-    - Individual metric breakdowns (eyebrow raise, lip tension, etc.)
-    - Stress level classification with color coding
-    - Continuous monitoring during trading sessions
-    """)
-    
-    # Simulated stress metrics for demonstration
-    st.markdown("---")
-    st.subheader("📊 Simulated Stress Metrics (Demo)")
-    
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        demo_stress = st.slider(
-            "Demo Stress Score",
-            min_value=0.0,
-            max_value=1.0,
-            value=0.12,
-            step=0.01,
-            help="Adjust to see how stress levels would be classified"
-        )
-    
-    with col2:
-        if demo_stress < 0.08:
-            stress_level = "Calm"
-            stress_color = "green"
-            emoji = "🟢"
-        elif demo_stress < 0.15:
-            stress_level = "Mild"
-            stress_color = "orange"
-            emoji = "🟡"
-        else:
-            stress_level = "High"
-            stress_color = "red"
-            emoji = "🔴"
-        
-        st.metric(
-            "Stress Level",
-            f"{emoji} {stress_level}",
-            delta=f"Score: {demo_stress:.3f}"
-        )
-    
-    with col3:
-        # Calculate recommendation
-        if demo_stress < 0.08:
-            recommendation = "👍 Optimal trading state"
-        elif demo_stress < 0.15:
-            recommendation = "⚠️ Monitor closely"
-        else:
-            recommendation = "🛑 Consider a break"
-        
-        st.info(f"**Recommendation**: {recommendation}")
-    
-    # Simulated component metrics
-    st.subheader("📊 Component Metrics (Demo)")
-    
-    # Generate simulated values based on overall stress
-    import random
-    random.seed(int(demo_stress * 1000))
-    
-    eyebrow_raise = demo_stress * 0.6 + random.uniform(0, 0.1)
-    lip_tension = demo_stress * 0.8 + random.uniform(0, 0.1)
-    head_movement = demo_stress * 0.4 + random.uniform(0, 0.05)
-    facial_symmetry = demo_stress * 0.2 + random.uniform(0, 0.05)
-    blink_rate = int((demo_stress * 30) + random.randint(10, 25))  # blinks per minute
-    
-    col1a, col2a, col3a, col4a, col5a = st.columns(5)
-    
-    with col1a:
-        st.metric("Eyebrow Raise", f"{eyebrow_raise:.3f}")
-    
-    with col2a:
-        st.metric("Lip Tension", f"{lip_tension:.3f}")
-    
-    with col3a:
-        st.metric("Head Movement", f"{head_movement:.3f}")
-    
-    with col4a:
-        st.metric("Asymmetry", f"{facial_symmetry:.3f}")
-    
-    with col5a:
-        st.metric("Blink Rate", f"{blink_rate}/min")
-    
-    # Visualization
-    st.subheader("📊 Stress Components Breakdown")
-    
-    components_data = pd.DataFrame({
-        'Metric': ['Eyebrow Raise', 'Lip Tension', 'Head Movement', 'Asymmetry', 'Blink Rate (norm)'],
-        'Value': [eyebrow_raise, lip_tension, head_movement, facial_symmetry, blink_rate / 60]
-    })
-    
-    fig_components = go.Figure(data=[
-        go.Bar(
-            x=components_data['Metric'],
-            y=components_data['Value'],
-            marker_color=['#00f2fe', '#f6416c', '#43e97b', '#ffbd39', '#f7971e']
-        )
-    ])
-    
-    fig_components.update_layout(
-        template='plotly_dark',
-        height=300,
-        yaxis_title='Stress Contribution',
-        xaxis_title='Component',
-        showlegend=False
-    )
-    
-    st.plotly_chart(fig_components, use_container_width=True)
-    
-    # Tips for stress management
-    st.markdown("---")
-    st.subheader("🧘 Stress Management Tips for Traders")
-    
-    col1b, col2b = st.columns(2)
-    
-    with col1b:
-        st.markdown("""
-        **During Trading:**
-        - 🚨 Take breaks every 60-90 minutes
-        - 💧 Stay hydrated
-        - 🧘 Practice deep breathing
-        - 👁️ Look away from screen (20-20-20 rule)
-        - 🚫 Avoid revenge trading when stressed
-        """)
-    
-    with col2b:
-        st.markdown("""
-        **Long-term Strategies:**
-        - 🏋️ Regular exercise
-        - 😴 Adequate sleep (7-8 hours)
-        - 🧘 Meditation or mindfulness practice
-        - 📝 Trading journal to track emotional state
-        - 🔄 Stick to trading plan regardless of emotions
-        """)
 
 # Footer
 st.markdown("---")

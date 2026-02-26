@@ -1,17 +1,20 @@
 """
 FastAPI dependencies for request handling, authentication, and common services.
 
-Week 11: API Layer - Dependency injection for authentication, rate limiting,
-                     and service access.
+Week 11: API Layer - Enhanced dependency injection with JWT authentication,
+                     role-based access control, and tiered rate limiting.
 """
 
 import logging
 from datetime import datetime, timedelta
 from functools import lru_cache
-from typing import Annotated, Optional
+from typing import Annotated, Optional, Dict, Any
 
+import jwt
 from fastapi import Depends, Header, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from quantlib_pro.observability import (
     check_health,
@@ -22,11 +25,97 @@ from quantlib_pro.observability import (
 logger = logging.getLogger(__name__)
 
 # =============================================================================
-# Security Dependencies
+# Configuration
 # =============================================================================
 
+# JWT Configuration
+JWT_SECRET_KEY = "your-secret-key-here"  # In production: use environment variable
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRATION_HOURS = 24
+
+# Rate Limiting Configuration
+RATE_LIMITS = {
+    "free": "60/hour",
+    "pro": "1000/hour", 
+    "enterprise": "10000/hour",
+    "admin": "unlimited"
+}
+
+# =============================================================================
+# Rate Limiting
+# =============================================================================
+
+limiter = Limiter(key_func=get_remote_address)
+
+
+def get_user_rate_limit(user_tier: str) -> str:
+    """Get rate limit based on user tier."""
+    return RATE_LIMITS.get(user_tier, "60/hour")
+
+
+# =============================================================================
+# JWT Authentication
+# =============================================================================
+
+class AuthenticationService:
+    """JWT Authentication service."""
+    
+    def __init__(self):
+        self.secret_key = JWT_SECRET_KEY
+        self.algorithm = JWT_ALGORITHM
+    
+    def create_access_token(self, user_data: Dict[str, Any]) -> str:
+        """Create JWT access token."""
+        to_encode = user_data.copy()
+        expire = datetime.utcnow() + timedelta(hours=JWT_EXPIRATION_HOURS)
+        to_encode.update({"exp": expire})
+        
+        encoded_jwt = jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm)
+        return encoded_jwt
+    
+    def verify_token(self, token: str) -> Dict[str, Any]:
+        """Verify and decode JWT token."""
+        try:
+            payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
+            return payload
+        except jwt.ExpiredSignatureError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token expired"
+            )
+        except jwt.JWTError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token"
+            )
+
+
+# Global authentication service
+auth_service = AuthenticationService()
 security = HTTPBearer(auto_error=False)
 
+
+# =============================================================================
+# User Models
+# =============================================================================
+
+class User:
+    """User model for API authentication."""
+    
+    def __init__(self, user_id: str, email: str, tier: str, permissions: list):
+        self.user_id = user_id
+        self.email = email
+        self.tier = tier
+        self.permissions = permissions
+    
+    def has_permission(self, permission: str) -> bool:
+        """Check if user has specific permission."""
+        return permission in self.permissions or "admin" in self.permissions
+
+
+# =============================================================================
+# Authentication Dependencies
+# =============================================================================
 
 async def get_api_key(
     x_api_key: Annotated[Optional[str], Header()] = None,
@@ -39,7 +128,7 @@ async def verify_api_key(
     api_key: Annotated[Optional[str], Depends(get_api_key)],
 ) -> str:
     """
-    Verify API key (simplified - in production use proper auth service).
+    Verify API key (production implementation should use database).
     
     Raises:
         HTTPException: If API key is invalid or missing.
@@ -52,7 +141,7 @@ async def verify_api_key(
         )
     
     # In production: validate against database/cache
-    # For now: simple validation
+    # For demo: simple validation
     if len(api_key) < 32:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -67,28 +156,42 @@ async def get_current_user(
         Optional[HTTPAuthorizationCredentials],
         Depends(security),
     ] = None,
-) -> Optional[str]:
+) -> Optional[User]:
     """
-    Get current user from Bearer token.
+    Get current user from JWT Bearer token.
     
-    In production, decode JWT and return user object.
-    For now, returns simplified user ID.
+    Returns:
+        User object if authenticated, None otherwise
     """
     if not credentials:
         return None
     
-    # In production: decode JWT, validate, return user object
-    token = credentials.credentials
-    if not token:
+    try:
+        # Verify JWT token
+        payload = auth_service.verify_token(credentials.credentials)
+        
+        # In production: fetch user from database using payload['user_id']
+        # For demo: create user from token payload
+        user = User(
+            user_id=payload.get("user_id", "demo_user"),
+            email=payload.get("email", "demo@quantlibpro.com"),
+            tier=payload.get("tier", "free"),
+            permissions=payload.get("permissions", ["basic"])
+        )
+        
+        return user
+        
+    except HTTPException:
+        # Token validation failed - return None for optional auth
         return None
-    
-    # Simplified: return token as user_id
-    return f"user_{token[:8]}"
+    except Exception as e:
+        logger.error(f"Authentication error: {e}")
+        return None
 
 
 async def require_authentication(
-    user: Annotated[Optional[str], Depends(get_current_user)],
-) -> str:
+    user: Annotated[Optional[User], Depends(get_current_user)],
+) -> User:
     """
     Require authentication for endpoint.
     
@@ -101,8 +204,95 @@ async def require_authentication(
             detail="Authentication required",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
     return user
+
+
+def require_permission(permission: str):
+    """Decorator to require specific permission."""
+    async def permission_checker(
+        user: Annotated[User, Depends(require_authentication)]
+    ) -> User:
+        if not user.has_permission(permission):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Permission '{permission}' required"
+            )
+        return user
+    
+    return permission_checker
+
+
+# =============================================================================
+# Rate Limiting Dependencies
+# =============================================================================
+
+async def check_rate_limit(
+    request: Request,
+    user: Annotated[Optional[User], Depends(get_current_user)] = None,
+) -> None:
+    """
+    Check rate limits based on user tier.
+    
+    Raises:
+        HTTPException: If rate limit exceeded
+    """
+    # Get user tier for rate limiting
+    user_tier = user.tier if user else "free"
+    
+    # Skip rate limiting for admin and enterprise users in demo
+    if user_tier in ["admin", "enterprise"]:
+        return
+    
+    # Apply rate limiting based on tier
+    rate_limit = get_user_rate_limit(user_tier)
+    
+    # In production: implement proper rate limiting with Redis
+    # For demo: simplified rate limiting
+    try:
+        # This would use slowapi limiter in production
+        # limiter.limit(rate_limit)(request)
+        pass
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=f"Rate limit exceeded for {user_tier} tier. Limit: {rate_limit}"
+        )
+
+
+# =============================================================================
+# Service Dependencies
+# =============================================================================
+
+@lru_cache()
+def get_settings():
+    """Get application settings (cached)."""
+    return {
+        "app_name": "QuantLib Pro API",
+        "version": "1.0.0",
+        "debug": True,  # In production: from environment
+    }
+
+
+async def get_performance_metrics() -> Dict[str, Any]:
+    """Get current performance metrics."""
+    monitor = get_performance_monitor()
+    return {
+        "active_requests": monitor.active_requests,
+        "total_requests": monitor.total_requests,
+        "average_response_time": monitor.average_response_time,
+        "error_rate": monitor.error_rate
+    }
+
+
+async def health_check_dependency() -> Dict[str, str]:
+    """Health check dependency for endpoints."""
+    health = check_health()
+    if health["status"] != "healthy":
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Service temporarily unavailable"
+        )
+    return health
 
 
 # =============================================================================

@@ -99,6 +99,97 @@ class BlackScholesRequest(BaseModel):
     """Black-Scholes pricing request."""
     spot_price: float = Field(..., gt=0, description="Current spot price")
     strike_price: float = Field(..., gt=0, description="Strike price")
+    time_to_expiry: float = Field(..., gt=0, description="Time to expiry in years")
+    risk_free_rate: float = Field(..., ge=-0.1, le=1.0, description="Risk-free rate (annual)")
+    volatility: float = Field(..., gt=0, le=5.0, description="Volatility (annual)")
+    option_type: OptionType = Field(..., description="Call or put option")
+
+
+class BlackScholesResponse(BaseModel):
+    """Black-Scholes pricing result."""
+    option_price: float = Field(..., description="Option price")
+    delta: float = Field(..., description="Price sensitivity to spot (Delta)")
+    gamma: float = Field(..., description="Delta sensitivity to spot (Gamma)")
+    vega: float = Field(..., description="Price sensitivity to volatility (Vega)")
+    theta: float = Field(..., description="Price decay over time (Theta)")
+    rho: float = Field(..., description="Price sensitivity to interest rate (Rho)")
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+
+class ImpliedVolatilityRequest(BaseModel):
+    """Implied volatility calculation request."""
+    market_price: float = Field(..., gt=0, description="Observed market price")
+    spot_price: float = Field(..., gt=0, description="Current spot price")
+    strike_price: float = Field(..., gt=0, description="Strike price")
+    time_to_expiry: float = Field(..., gt=0, description="Time to expiry in years")
+    risk_free_rate: float = Field(..., ge=-0.1, le=1.0, description="Risk-free rate")
+    option_type: OptionType = Field(..., description="Call or put option")
+
+
+
+# =============================================================================
+# Risk Analytics Models
+# =============================================================================
+
+class VaRMethod(str, Enum):
+    """Value at Risk calculation methods."""
+    HISTORICAL = "historical"
+    PARAMETRIC = "parametric"
+    MONTE_CARLO = "monte_carlo"
+
+
+class VaRRequest(BaseModel):
+    """Value at Risk calculation request."""
+    tickers: List[str] = Field(..., min_length=1, description="Portfolio asset tickers")
+    weights: Dict[str, float] = Field(..., description="Portfolio weights (ticker -> weight)")
+    portfolio_value: float = Field(..., gt=0, description="Total portfolio value")
+    confidence_level: float = Field(default=0.95, ge=0.8, le=0.999, description="VaR confidence level")
+    holding_period_days: int = Field(default=1, ge=1, le=30, description="Holding period in days")
+    method: VaRMethod = Field(default=VaRMethod.HISTORICAL, description="VaR calculation method")
+    
+    @field_validator("weights")
+    @classmethod
+    def validate_weights_sum(cls, v: Dict[str, float]) -> Dict[str, float]:
+        """Validate weights sum approximately to 1.0."""
+        total = sum(v.values())
+        if not 0.99 <= total <= 1.01:
+            raise ValueError(f"Weights must sum to 1.0, got {total}")
+        return v
+
+
+class VaRResponse(BaseModel):
+    """Value at Risk calculation result."""
+    var_amount: float = Field(..., description="VaR in portfolio currency units")
+    var_percentage: float = Field(..., description="VaR as percentage of portfolio")
+    cvar_amount: float = Field(..., description="Conditional VaR (Expected Shortfall)")
+    cvar_percentage: float = Field(..., description="CVaR as percentage of portfolio")
+    confidence_level: float = Field(..., description="Confidence level used")
+    method: str = Field(..., description="Calculation method used")
+    holding_period_days: int = Field(..., description="Holding period in days")
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+
+class StressTestRequest(BaseModel):
+    """Portfolio stress test request."""
+    tickers: List[str] = Field(..., min_length=1, description="Portfolio asset tickers")
+    weights: Dict[str, float] = Field(..., description="Portfolio weights")
+    portfolio_value: float = Field(..., gt=0, description="Total portfolio value")
+    scenarios: List[str] = Field(
+        default=["market_crash_2008", "covid_2020", "interest_rate_spike"],
+        description="Stress scenarios to test"
+    )
+
+
+class StressTestResponse(BaseModel):
+    """Portfolio stress test result."""
+    scenario_results: List[Dict[str, Any]] = Field(..., description="Individual scenario results")
+    worst_case_loss: float = Field(..., description="Maximum potential loss")
+    worst_case_percentage: float = Field(..., description="Worst case as percentage")
+    best_case_impact: float = Field(..., description="Best case scenario impact")
+    average_impact: float = Field(..., description="Average impact across scenarios")
+    scenarios_tested: int = Field(..., description="Number of scenarios tested")
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    strike_price: float = Field(..., gt=0, description="Strike price")
     time_to_maturity: float = Field(..., gt=0, le=30, description="Time to maturity (years)")
     risk_free_rate: float = Field(..., ge=-0.1, le=1, description="Risk-free rate")
     volatility: float = Field(..., gt=0, le=5, description="Volatility (annualized)")

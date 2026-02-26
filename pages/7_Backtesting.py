@@ -17,21 +17,28 @@ from quantlib_pro.execution.backtesting import (
     MeanReversionStrategy,
     MomentumStrategy,
 )
-from quantlib_pro.data.market_data import MarketDataProvider
+from quantlib_pro.data.providers_legacy import DataProviderFactory
 
-st.set_page_config(page_title="Backtesting", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Backtesting", page_icon="", layout="wide")
 
-st.title("📊 Strategy Backtesting")
+st.title("Strategy Backtesting")
 st.markdown("Test trading strategies with historical data and analyze performance metrics.")
 
 # Sidebar configuration
 st.sidebar.header("Configuration")
 
-# Data provider selection (Yahoo Finance only)
-provider_type = 'yahoo'
+# Data provider selection
+provider_type = st.sidebar.selectbox(
+    "Data Provider",
+    options=['simulated', 'yahoo'],
+    help="Choose data source for backtesting"
+)
 
-# Symbol input
-symbol = st.sidebar.text_input("Symbol", value="SPY", help="Ticker symbol to backtest")
+# Symbol input (for non-simulated data)
+if provider_type == 'yahoo':
+    symbol = st.sidebar.text_input("Symbol", value="SPY", help="Ticker symbol to backtest")
+else:
+    symbol = "SIMULATED"
 
 # Date range
 col1, col2 = st.sidebar.columns(2)
@@ -105,22 +112,26 @@ else:  # Momentum
     overbought = st.sidebar.slider("Overbought", 60, 90, 70)
 
 # Run backtest button
-run_backtest = st.sidebar.button("🚀 Run Backtest", type="primary", use_container_width=True)
+run_backtest = st.sidebar.button(" Run Backtest", type="primary", use_container_width=True)
 
 # Main content
 if run_backtest:
     with st.spinner("Fetching data and running backtest..."):
         try:
-            # 1. Fetch data from Yahoo Finance
-            provider = MarketDataProvider()
+            # 1. Fetch data
+            if provider_type == 'yahoo':
+                provider = DataProviderFactory.create('yahoo')
+            else:
+                provider = DataProviderFactory.create('simulated', config={'seed': 42})
             
-            data = provider.get_stock_data(
-                ticker=symbol,
+            data = provider.fetch_historical(
+                symbol=symbol,
                 start_date=str(start_date),
-                end_date=str(end_date)
+                end_date=str(end_date),
+                interval='1d'
             )
             
-            st.success(f"✓ Fetched {len(data)} bars of data")
+            st.success(f" Fetched {len(data)} bars of data")
             
             # 2. Create strategy
             if strategy_type == 'MA Crossover':
@@ -150,14 +161,14 @@ if run_backtest:
             
             results = engine.run(strategy)
             
-            st.success(f"✓ Backtest completed: {results.total_trades} trades executed")
+            st.success(f" Backtest completed: {results.total_trades} trades executed")
             
             # Display results in tabs
             tab1, tab2, tab3, tab4 = st.tabs([
-                "📈 Performance",
-                "📊 Metrics",
-                "💼 Trades",
-                "📉 Drawdown"
+                " Performance",
+                " Metrics",
+                " Trades",
+                " Drawdown"
             ])
             
             with tab1:
@@ -222,7 +233,7 @@ if run_backtest:
                     outperformance = strategy_return > bh_return
                     st.metric(
                         "Outperformance",
-                        "✓ YES" if outperformance else "✗ NO",
+                        " YES" if outperformance else " NO",
                         delta=None
                     )
             
@@ -405,7 +416,7 @@ if run_backtest:
 
 else:
     # Welcome message
-    st.info("👈 Configure your backtest parameters in the sidebar and click 'Run Backtest' to begin.")
+    st.info(" Configure your backtest parameters in the sidebar and click 'Run Backtest' to begin.")
     
     # Show strategy explanations
     st.subheader("Available Strategies")
@@ -414,7 +425,7 @@ else:
     
     with col1:
         st.markdown("""
-        **📊 MA Crossover**
+        ** MA Crossover**
         
         Classic trend-following strategy:
         - Buy when short MA crosses above long MA
@@ -424,7 +435,7 @@ else:
     
     with col2:
         st.markdown("""
-        **🔄 Mean Reversion**
+        ** Mean Reversion**
         
         Volatility-based strategy:
         - Buy when price touches lower Bollinger Band
@@ -434,7 +445,7 @@ else:
     
     with col3:
         st.markdown("""
-        **⚡ Momentum (RSI)**
+        ** Momentum (RSI)**
         
         Oscillator-based strategy:
         - Buy when RSI indicates oversold (<30)

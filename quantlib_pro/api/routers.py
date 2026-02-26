@@ -173,6 +173,158 @@ options_router = APIRouter(prefix="/options", tags=["options"])
 @options_router.post(
     "/black-scholes",
     response_model=models.BlackScholesResponse,
+    summary="Calculate Black-Scholes option price",
+)
+async def black_scholes_pricing(
+    request: models.BlackScholesRequest,
+    _: Annotated[None, Depends(deps.check_rate_limit)],
+) -> models.BlackScholesResponse:
+    """
+    Calculate European option price using Black-Scholes formula.
+    
+    Computes option price and full Greeks (Delta, Gamma, Vega, Theta, Rho)
+    for European call and put options.
+    
+    Args:
+        request: Black-Scholes pricing parameters
+    
+    Returns:
+        Option price and Greeks
+        
+    Raises:
+        HTTPException: If calculation fails or invalid parameters
+    """
+    with track_api_request("/options/black-scholes", "POST"):
+        try:
+            with track_calculation("black_scholes_pricing"):
+                # Validate parameters
+                if request.spot_price <= 0:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Spot price must be positive"
+                    )
+                if request.strike_price <= 0:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Strike price must be positive"
+                    )
+                if request.time_to_expiry <= 0:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Time to expiry must be positive"
+                    )
+                if request.volatility <= 0:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Volatility must be positive"
+                    )
+                
+                # Calculate with full Greeks
+                result = price_with_greeks(
+                    S=request.spot_price,
+                    K=request.strike_price,
+                    T=request.time_to_expiry,
+                    r=request.risk_free_rate,
+                    sigma=request.volatility,
+                    option_type=request.option_type.value
+                )
+                
+                return models.BlackScholesResponse(
+                    option_price=result["price"],
+                    delta=result["delta"],
+                    gamma=result["gamma"],
+                    vega=result["vega"],
+                    theta=result["theta"],
+                    rho=result["rho"]
+                )
+                
+        except ValueError as e:
+            logger.error(f"Black-Scholes calculation error: {e}")
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid parameters: {str(e)}"
+            )
+        except Exception as e:
+            logger.error(f"Unexpected error in Black-Scholes: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail="Internal calculation error"
+            )
+
+
+@options_router.post(
+    "/implied-volatility",
+    response_model=models.ImpliedVolatilityResponse,
+    summary="Calculate implied volatility",
+)
+async def implied_volatility_endpoint(
+    request: models.ImpliedVolatilityRequest,
+    _: Annotated[None, Depends(deps.check_rate_limit)],
+) -> models.ImpliedVolatilityResponse:
+    """
+    Calculate implied volatility from market option price.
+    
+    Uses Newton-Raphson method to find the volatility that makes
+    Black-Scholes price equal to the observed market price.
+    
+    Args:
+        request: Implied volatility calculation parameters
+    
+    Returns:
+        Implied volatility and convergence info
+    """
+    with track_api_request("/options/implied-volatility", "POST"):
+        try:
+            with track_calculation("implied_volatility"):
+                # Validate market price makes sense
+                intrinsic_value = max(
+                    0,
+                    request.spot_price - request.strike_price
+                    if request.option_type == models.OptionType.CALL
+                    else request.strike_price - request.spot_price
+                )
+                
+                if request.market_price < intrinsic_value:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Market price {request.market_price} below intrinsic value {intrinsic_value}"
+                    )
+                
+                # Calculate implied volatility
+                iv_result = implied_volatility(
+                    market_price=request.market_price,
+                    S=request.spot_price,
+                    K=request.strike_price, 
+                    T=request.time_to_expiry,
+                    r=request.risk_free_rate,
+                    option_type=request.option_type.value,
+                    tolerance=1e-6,
+                    max_iterations=100
+                )
+                
+                return models.ImpliedVolatilityResponse(
+                    implied_volatility=iv_result["volatility"],
+                    iterations=iv_result["iterations"],
+                    converged=iv_result["converged"]
+                )
+                
+        except ValueError as e:
+            logger.error(f"Implied volatility error: {e}")
+            raise HTTPException(
+                status_code=400,
+                detail=f"Calculation failed: {str(e)}"
+            )
+        except Exception as e:
+            logger.error(f"Unexpected error in implied volatility: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail="Internal calculation error"
+            )
+
+
+@options_router.post(
+    "/black-scholes",
+    response_model=models.BlackScholesResponse,
     summary="Black-Scholes option pricing",
 )
 async def price_option_black_scholes(
@@ -280,10 +432,216 @@ async def price_option_monte_carlo(
 
 
 # =============================================================================
-# Risk Router
+# Risk Analytics Router
 # =============================================================================
 
 risk_router = APIRouter(prefix="/risk", tags=["risk"])
+
+
+@risk_router.post(
+    "/var",
+    response_model=models.VaRResponse,
+    summary="Calculate Value at Risk",
+)
+async def calculate_var_endpoint(
+    request: models.VaRRequest,
+    _: Annotated[None, Depends(deps.check_rate_limit)],
+) -> models.VaRResponse:
+    """
+    Calculate Value at Risk (VaR) and Conditional VaR (CVaR).
+    
+    Supports multiple VaR calculation methods:
+    - Historical simulation
+    - Parametric (Variance-Covariance)
+    - Monte Carlo simulation
+    
+    Args:
+        request: VaR calculation parameters
+    
+    Returns:
+        VaR and CVaR estimates with confidence intervals
+    """
+    with track_api_request("/risk/var", "POST"):
+        try:
+            with track_calculation("var_calculation"):
+                # Validate confidence level
+                if not 0.8 <= request.confidence_level <= 0.999:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Confidence level must be between 0.8 and 0.999"
+                    )
+                
+                # For demonstration - in production, fetch real market data
+                # Generate synthetic returns for the tickers
+                num_days = 252  # 1 year of trading days
+                returns_data = {}
+                for ticker in request.tickers:
+                    # Simulate realistic returns
+                    daily_returns = np.random.normal(0.0005, 0.02, num_days)
+                    returns_data[ticker] = daily_returns
+                
+                returns_df = pd.DataFrame(returns_data)
+                
+                # Calculate portfolio returns
+                weights = np.array([request.weights.get(ticker, 0) for ticker in request.tickers])
+                portfolio_returns = returns_df.values @ weights
+                
+                # Calculate VaR using specified method
+                if request.method == "historical":
+                    var_value = np.percentile(portfolio_returns, (1 - request.confidence_level) * 100)
+                elif request.method == "parametric":
+                    mean_return = np.mean(portfolio_returns)
+                    std_return = np.std(portfolio_returns)
+                    from scipy.stats import norm
+                    var_value = norm.ppf(1 - request.confidence_level, mean_return, std_return)
+                elif request.method == "monte_carlo":
+                    # Monte Carlo simulation
+                    n_simulations = 10000
+                    mean_return = np.mean(portfolio_returns)
+                    std_return = np.std(portfolio_returns)
+                    simulated_returns = np.random.normal(mean_return, std_return, n_simulations)
+                    var_value = np.percentile(simulated_returns, (1 - request.confidence_level) * 100)
+                else:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Invalid VaR method. Choose: historical, parametric, or monte_carlo"
+                    )
+                
+                # Calculate CVaR (Expected Shortfall)
+                cvar_returns = portfolio_returns[portfolio_returns <= var_value]
+                cvar_value = np.mean(cvar_returns) if len(cvar_returns) > 0 else var_value
+                
+                # Convert to portfolio value terms
+                var_amount = abs(var_value * request.portfolio_value)
+                cvar_amount = abs(cvar_value * request.portfolio_value)
+                
+                return models.VaRResponse(
+                    var_amount=var_amount,
+                    var_percentage=abs(var_value) * 100,
+                    cvar_amount=cvar_amount,
+                    cvar_percentage=abs(cvar_value) * 100,
+                    confidence_level=request.confidence_level,
+                    method=request.method,
+                    holding_period_days=request.holding_period_days
+                )
+                
+        except ValueError as e:
+            logger.error(f"VaR calculation error: {e}")
+            raise HTTPException(
+                status_code=400,
+                detail=f"VaR calculation failed: {str(e)}"
+            )
+        except Exception as e:
+            logger.error(f"Unexpected error in VaR calculation: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail="Internal calculation error"
+            )
+
+
+@risk_router.post(
+    "/stress-test",
+    response_model=models.StressTestResponse,
+    summary="Perform portfolio stress test",
+)
+async def stress_test_endpoint(
+    request: models.StressTestRequest,
+    _: Annotated[None, Depends(deps.check_rate_limit)],
+) -> models.StressTestResponse:
+    """
+    Perform comprehensive portfolio stress testing.
+    
+    Tests portfolio performance under various market stress scenarios:
+    - Historical scenarios (2008 crisis, COVID-19, etc.)
+    - Hypothetical shocks (interest rate changes, volatility spikes)
+    - Custom scenario modeling
+    
+    Args:
+        request: Stress test parameters
+    
+    Returns:
+        Stress test results with portfolio impact analysis
+    """
+    with track_api_request("/risk/stress-test", "POST"):
+        try:
+            with track_calculation("stress_test"):
+                stress_results = []
+                
+                # Define stress scenarios
+                scenarios = {
+                    "market_crash_2008": {
+                        "equity_shock": -0.30,
+                        "bond_shock": 0.05,
+                        "volatility_mult": 2.5,
+                        "description": "2008 Financial Crisis scenario"
+                    },
+                    "covid_2020": {
+                        "equity_shock": -0.25,
+                        "bond_shock": -0.02,
+                        "volatility_mult": 3.0,
+                        "description": "COVID-19 market shock scenario"
+                    },
+                    "interest_rate_spike": {
+                        "equity_shock": -0.15,
+                        "bond_shock": -0.10,
+                        "volatility_mult": 1.5,
+                        "description": "Sudden interest rate increase"
+                    },
+                    "inflation_surge": {
+                        "equity_shock": -0.20,
+                        "bond_shock": -0.15,
+                        "volatility_mult": 2.0,
+                        "description": "Unexpected inflation surge"
+                    }
+                }
+                
+                # Run stress tests for requested scenarios
+                for scenario_name in request.scenarios:
+                    if scenario_name not in scenarios:
+                        continue
+                        
+                    scenario = scenarios[scenario_name]
+                    
+                    # Calculate portfolio impact
+                    total_impact = 0.0
+                    for ticker, weight in request.weights.items():
+                        # Simplified: assume all assets are equity for demo
+                        # In production: classify assets and apply appropriate shocks
+                        asset_impact = scenario["equity_shock"] * weight * request.portfolio_value
+                        total_impact += asset_impact
+                    
+                    stress_results.append({
+                        "scenario_name": scenario_name,
+                        "description": scenario["description"],
+                        "portfolio_impact": total_impact,
+                        "impact_percentage": (total_impact / request.portfolio_value) * 100,
+                        "final_portfolio_value": request.portfolio_value + total_impact
+                    })
+                
+                # Calculate summary statistics
+                if stress_results:
+                    worst_case = min(stress_results, key=lambda x: x["portfolio_impact"])
+                    best_case = max(stress_results, key=lambda x: x["portfolio_impact"])
+                    avg_impact = sum(r["portfolio_impact"] for r in stress_results) / len(stress_results)
+                else:
+                    worst_case = best_case = {"portfolio_impact": 0, "impact_percentage": 0}
+                    avg_impact = 0
+                
+                return models.StressTestResponse(
+                    scenario_results=stress_results,
+                    worst_case_loss=abs(worst_case["portfolio_impact"]),
+                    worst_case_percentage=abs(worst_case["impact_percentage"]),
+                    best_case_impact=best_case["portfolio_impact"],
+                    average_impact=avg_impact,
+                    scenarios_tested=len(stress_results)
+                )
+                
+        except Exception as e:
+            logger.error(f"Stress test error: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Stress test failed: {str(e)}"
+            )
 
 
 @risk_router.post(

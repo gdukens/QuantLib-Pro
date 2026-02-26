@@ -16,11 +16,11 @@ from quantlib_pro.data.market_data import MarketDataProvider
 # Page config
 st.set_page_config(
     page_title="Market Regime - QuantLib Pro",
-    page_icon="🎯",
+    page_icon="",
     layout="wide",
 )
 
-st.title("🎯 Market Regime Detection")
+st.title("Market Regime Detection")
 st.markdown("Identify market regimes (bull, bear, high vol, low vol) using Hidden Markov Models.")
 
 # Common ticker list
@@ -62,16 +62,16 @@ with st.sidebar:
         help="Number of hidden states to detect",
     )
     
-    detect_button = st.button("🔍 Detect Regimes", type="primary", use_container_width=True)
+    detect_button = st.button(" Detect Regimes", type="primary", use_container_width=True)
 
 # Main content
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-    "📊 Regime Detection", 
-    "🔄 Transitions", 
-    "📈 Statistics",
-    "🎲 3D State Machine",
-    "📉 Alpha Decay",
-    "🌋 Correlation Shifts"
+    " Regime Detection", 
+    " Transitions", 
+    " Statistics",
+    " 3D State Machine",
+    " Alpha Decay",
+    " Correlation Shifts"
 ])
 
 with tab1:

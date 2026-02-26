@@ -1,5 +1,5 @@
 """
-📈 Market Analysis Dashboard
+ Market Analysis Dashboard
 
 Comprehensive stock analysis: trend detection, volatility comparison, and technical indicators.
 """
@@ -15,11 +15,11 @@ from scipy import stats
 # Page config
 st.set_page_config(
     page_title="Market Analysis",
-    page_icon="📈",
+    page_icon="",
     layout="wide",
 )
 
-st.title("📈 Market Analysis")
+st.title("Market Analysis")
 st.markdown("Technical analysis, trend detection, and volatility comparison across multiple stocks")
 
 # ============================================================================
@@ -36,7 +36,7 @@ COMMON_TICKERS = [
 ]
 
 with st.sidebar:
-    st.header("⚙️ Analysis Configuration")
+    st.header("Analysis Configuration")
     
     # Stock selection
     st.subheader("Stocks to Analyze")
@@ -166,7 +166,7 @@ try:
         
         # Show summary
         with st.sidebar:
-            st.success(f"✅ Loaded {len(stock_data)} stocks")
+            st.success(f" Loaded {len(stock_data)} stocks")
             min_days = min(len(df) for df in stock_data.values())
             st.write(f"**Data points:** {min_days} days")
 
@@ -214,10 +214,10 @@ def calculate_volatility(returns, window=30, annualize=True):
 
 # Create tabs
 tab1, tab2, tab3, tab4 = st.tabs([
-    "📊 Trend Analysis",
-    "📉 Volatility Comparison",
-    "📈 Technical Charts",
-    "🔢 Statistics"
+    " Trend Analysis",
+    " Volatility Comparison",
+    " Technical Charts",
+    " Statistics"
 ])
 
 # ============================================================================

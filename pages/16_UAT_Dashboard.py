@@ -30,11 +30,11 @@ from quantlib_pro.uat import (
 # Page config
 st.set_page_config(
     page_title="UAT Dashboard",
-    page_icon="🧪",
+    page_icon="",
     layout="wide"
 )
 
-st.title("🧪 User Acceptance Testing Dashboard")
+st.title("User Acceptance Testing Dashboard")
 st.markdown("*Comprehensive UAT management, feedback collection, and quality assurance*")
 
 # Initialize components
@@ -58,12 +58,12 @@ executor, feedback_collector, feedback_analyzer, bug_tracker, performance_valida
 
 # Tabs
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-    "📋 UAT Scenarios",
-    "💬 Feedback",
-    "🐛 Bug Tracking",
-    "⚡ Performance",
-    "📊 Reports",
-    "📈 Metrics"
+    " UAT Scenarios",
+    " Feedback",
+    " Bug Tracking",
+    " Performance",
+    " Reports",
+    " Metrics"
 ])
 
 # ============================================================================
@@ -123,7 +123,7 @@ with tab1:
                 
                 st.markdown("**Test Steps:**")
                 for step in scenario.steps:
-                    status_icon = "✅" if step.passed is True else "❌" if step.passed is False else "⏸️"
+                    status_icon = "" if step.passed is True else "" if step.passed is False else ""
                     st.markdown(f"{status_icon} **Step {step.step_number}:** {step.description}")
                     st.markdown(f"   *Expected:* {step.expected_result}")
                 
@@ -198,7 +198,7 @@ with tab2:
                         description=description,
                         page=page
                     )
-                    st.success(f"✅ Feedback submitted! ID: {feedback.feedback_id}")
+                    st.success(f" Feedback submitted! ID: {feedback.feedback_id}")
                 else:
                     st.error("Please fill in all required fields")
     
@@ -227,11 +227,11 @@ with tab2:
             
             for feedback in feedback_items:
                 severity_color = {
-                    'critical': '🔴',
-                    'high': '🟠',
-                    'medium': '🟡',
-                    'low': '🟢'
-                }.get(feedback.severity.value, '⚪')
+                    'critical': '',
+                    'high': '',
+                    'medium': '',
+                    'low': ''
+                }.get(feedback.severity.value, '')
                 
                 with st.expander(
                     f"{severity_color} {feedback.feedback_id}: {feedback.title} "
@@ -283,7 +283,7 @@ with tab3:
     if critical_bugs:
         for bug in critical_bugs:
             with st.expander(
-                f"🔴 {bug.bug_id}: {bug.title} [{bug.priority.value.upper()}]"
+                f" {bug.bug_id}: {bug.title} [{bug.priority.value.upper()}]"
             ):
                 st.markdown(f"**Category:** {bug.category.value}")
                 st.markdown(f"**Severity:** {bug.severity.value}")
@@ -304,7 +304,7 @@ with tab3:
                 if bug.resolution:
                     st.markdown(f"**Resolution:** {bug.resolution}")
     else:
-        st.success("✅ No critical bugs! Great work!")
+        st.success(" No critical bugs! Great work!")
     
     st.subheader("Bug Distribution")
     
@@ -380,7 +380,7 @@ with tab4:
                         category=category,
                         executions=executions
                     )
-                st.success(f"✅ Completed {len(results)} benchmarks")
+                st.success(f" Completed {len(results)} benchmarks")
     
     with col2:
         st.subheader("Results")
@@ -418,7 +418,7 @@ with tab4:
             # Regressions
             regressions = performance_validator.get_regressions()
             if regressions:
-                st.warning(f"⚠️ {len(regressions)} performance regressions detected!")
+                st.warning(f" {len(regressions)} performance regressions detected!")
                 for reg in regressions:
                     st.markdown(
                         f"- **{reg.benchmark_name}**: {reg.regression_pct:.1f}% slower "
@@ -444,18 +444,18 @@ with tab5:
         
         if st.button("Export Feedback CSV"):
             feedback_collector.export_csv("data/uat/feedback_export.csv")
-            st.success("✅ Exported to data/uat/feedback_export.csv")
+            st.success(" Exported to data/uat/feedback_export.csv")
     
     with col2:
         st.subheader("Bug Report")
         
         if st.button("Export Bug Report"):
             bug_tracker.export_bug_report("data/uat/bug_report.json")
-            st.success("✅ Exported to data/uat/bug_report.json")
+            st.success(" Exported to data/uat/bug_report.json")
         
         if st.button("Export Performance Report"):
             performance_validator.export_report("data/uat/performance_report.json")
-            st.success("✅ Exported to data/uat/performance_report.json")
+            st.success(" Exported to data/uat/performance_report.json")
 
 # ============================================================================
 # TAB 6: Overall Metrics
@@ -530,13 +530,13 @@ with tab6:
         st.progress(quality_score / 100)
         
         if quality_score >= 90:
-            st.success("🎉 Excellent quality!")
+            st.success(" Excellent quality!")
         elif quality_score >= 70:
-            st.info("👍 Good quality")
+            st.info(" Good quality")
         elif quality_score >= 50:
-            st.warning("⚠️ Needs improvement")
+            st.warning(" Needs improvement")
         else:
-            st.error("🚨 Critical issues")
+            st.error(" Critical issues")
     
     # Trending issues
     st.subheader("Trending Issues")

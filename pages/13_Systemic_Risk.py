@@ -22,7 +22,7 @@ from quantlib_pro.data.market_data import MarketDataProvider
 # Configure page
 st.set_page_config(
     page_title="Systemic Risk & Contagion",
-    page_icon="🕸️",
+    page_icon="",
     layout="wide"
 )
 
@@ -230,7 +230,7 @@ def calculate_portfolio_fragility(returns_df, lookback=60):
 # ============================================================================
 # Page Header
 # ============================================================================
-st.title("🕸️ Systemic Risk & Contagion Analysis")
+st.title("Systemic Risk & Contagion Analysis")
 st.markdown("""
 Network-based analysis of interconnected risks and cascade effects
 """)
@@ -238,10 +238,10 @@ Network-based analysis of interconnected risks and cascade effects
 # ============================================================================
 # Sidebar Configuration
 # ============================================================================
-st.sidebar.header("⚙️ Configuration")
+st.sidebar.header("Configuration")
 
 # Stock selection
-st.sidebar.subheader("📊 Asset Universe")
+st.sidebar.subheader("Asset Universe")
 
 # Multi-select dropdown
 selected_tickers = st.sidebar.multiselect(
@@ -265,7 +265,7 @@ if custom_tickers.strip():
 tickers = selected_tickers
 
 # Date range
-st.sidebar.subheader("📅 Date Range")
+st.sidebar.subheader("Date Range")
 date_preset = st.sidebar.selectbox(
     "Preset Range",
     ["6 Months", "1 Year", "2 Years", "3 Years", "Custom"]
@@ -283,7 +283,7 @@ else:
     start_date = end_date - timedelta(days=days_map[date_preset])
 
 # Contagion parameters
-st.sidebar.subheader("🔥 Contagion Setup")
+st.sidebar.subheader("Contagion Setup")
 shock_strength = st.sidebar.slider(
     "Initial Shock Strength",
     min_value=0.1,
@@ -355,12 +355,12 @@ except Exception as e:
 # Tabs
 # ============================================================================
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-    "🕸️ Contagion Network",
-    "🔗 Correlation Shock",
-    "💥 Crash Cascade",
-    "⚠️ Portfolio Fragility",
-    "📊 Matrix Evolution",
-    "🌐 3D Market Contagion"
+    " Contagion Network",
+    " Correlation Shock",
+    " Crash Cascade",
+    " Portfolio Fragility",
+    " Matrix Evolution",
+    " 3D Market Contagion"
 ])
 
 # ============================================================================
@@ -881,13 +881,13 @@ with tab4:
             
             # Risk assessment
             if overall_score >= 75:
-                st.error("🔴 **Critical Fragility** - Portfolio extremely vulnerable to shocks")
+                st.error(" **Critical Fragility** - Portfolio extremely vulnerable to shocks")
             elif overall_score >= 50:
-                st.warning("🟠 **High Fragility** - Significant concentration and leverage risks")
+                st.warning(" **High Fragility** - Significant concentration and leverage risks")
             elif overall_score >= 25:
-                st.info("🟡 **Moderate Fragility** - Some vulnerability present, monitor closely")
+                st.info(" **Moderate Fragility** - Some vulnerability present, monitor closely")
             else:
-                st.success("🟢 **Low Fragility** - Portfolio relatively resilient to shocks")
+                st.success(" **Low Fragility** - Portfolio relatively resilient to shocks")
 
 # ============================================================================
 # Tab 5: Correlation Matrix Evolution
@@ -1010,7 +1010,7 @@ with tab5:
 # Tab 6: 3D Market Contagion Network
 # ============================================================================
 with tab6:
-    st.header("🌐 3D Market Contagion Network")
+    st.header("3D Market Contagion Network")
     
     st.markdown("""
     **3D Correlation-Based Contagion** - Visualize how market shocks propagate through 
@@ -1020,7 +1020,7 @@ with tab6:
     col1, col2 = st.columns([2, 1])
     
     with col2:
-        st.subheader("⚙️ Contagion Parameters")
+        st.subheader("Contagion Parameters")
         
         shock_ticker = st.selectbox(
             "Shock Asset",
@@ -1065,14 +1065,14 @@ with tab6:
             help="Number of contagion propagation steps"
         )
         
-        if st.button("🚀 Simulate 3D Contagion", type="primary"):
+        if st.button(" Simulate 3D Contagion", type="primary"):
             with st.spinner("Building 3D correlation network..."):
                 try:
                     # Calculate returns and correlation matrix
                     corr_matrix = returns_data.corr()
                     
                     st.info("""
-                    ⚠️ **NetworkX Dependency Required**
+                     **NetworkX Dependency Required**
                     
                     The 3D network visualization requires NetworkX which is not available in the current environment.
                     To use this feature, install NetworkX:
@@ -1084,7 +1084,7 @@ with tab6:
                     """)
                     
                     # Show correlation heatmap instead
-                    st.subheader("📊 Correlation Matrix Heatmap")
+                    st.subheader("Correlation Matrix Heatmap")
                     
                     fig_heatmap = go.Figure(data=go.Heatmap(
                         z=corr_matrix.values,
@@ -1187,7 +1187,7 @@ with tab6:
             st.plotly_chart(fig_stress, use_container_width=True)
             
             # Contagion metrics  
-            st.subheader("📊 Contagion Metrics")
+            st.subheader("Contagion Metrics")
             
             col1, col2, col3, col4 = st.columns(4)
             
@@ -1209,7 +1209,7 @@ with tab6:
                 st.metric("Average Stress", f"{avg_stress:.3f}")
             
             # Network statistics
-            st.subheader("🕸️ Network Structure")
+            st.subheader("Network Structure")
             
             col1, col2, col3 = st.columns(3)
             
@@ -1255,11 +1255,11 @@ with tab6:
             st.dataframe(central_df, use_container_width=True, hide_index=True)
             
         else:
-            st.info("▶️ Run simulation to visualize 3D market contagion network")
+            st.info("▶ Run simulation to visualize 3D market contagion network")
 
 # Footer
 st.markdown("---")
 st.markdown(
     "**Systemic Risk & Contagion Analysis** | Network Models & Cascade Simulations | "
-    "⚠️ For Risk Assessment Purposes Only"
+    " For Risk Assessment Purposes Only"
 )

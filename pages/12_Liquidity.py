@@ -22,7 +22,7 @@ from quantlib_pro.market_microstructure import CalibratedOrderBookSimulator
 # Configure page
 st.set_page_config(
     page_title="Liquidity & Market Microstructure",
-    page_icon="🌊",
+    page_icon="",
     layout="wide"
 )
 
@@ -165,7 +165,7 @@ def execution_cost(order_size, price, slippage):
 # ============================================================================
 # Page Header
 # ============================================================================
-st.title("🌊 Liquidity & Market Microstructure")
+st.title("Liquidity & Market Microstructure")
 st.markdown("""
 Analyze order book depth, liquidity dynamics, and market impact
 """)
@@ -173,10 +173,10 @@ Analyze order book depth, liquidity dynamics, and market impact
 # ============================================================================
 # Sidebar Configuration
 # ============================================================================
-st.sidebar.header("⚙️ Configuration")
+st.sidebar.header("Configuration")
 
 # Stock selection
-st.sidebar.subheader("📊 Market Selection")
+st.sidebar.subheader("Market Selection")
 ticker = st.sidebar.selectbox(
     "Select Asset",
     options=COMMON_TICKERS,
@@ -197,7 +197,7 @@ else:
     ticker = ticker.upper()
 
 # Order book parameters
-st.sidebar.subheader("📖 Order Book Setup")
+st.sidebar.subheader("Order Book Setup")
 
 use_real_calibration = st.sidebar.checkbox(
     "Use Real Market Calibration",
@@ -214,7 +214,7 @@ n_levels = st.sidebar.slider(
 )
 
 # Market impact parameters
-st.sidebar.subheader("💥 Market Impact Setup")
+st.sidebar.subheader("Market Impact Setup")
 adv = st.sidebar.number_input(
     "Average Daily Volume",
     min_value=10000,
@@ -267,7 +267,7 @@ calibration_info = ob.get_calibration_info()
 
 if calibration_info['is_calibrated']:
     st.success(f"""
-    ✅ **Order Book Calibrated to Real {calibration_info['ticker']} Market Data**
+     **Order Book Calibrated to Real {calibration_info['ticker']} Market Data**
     
     - **Mid Price:** ${calibration_info['mid_price']:.2f}
     - **Real Bid-Ask Spread:** ${calibration_info['real_spread']:.4f} ({calibration_info['spread_bps']:.1f} bps)
@@ -276,7 +276,7 @@ if calibration_info['is_calibrated']:
     """)
 else:
     st.warning(f"""
-    ⚠️ **Using Simulated Order Book** (Real data unavailable for {ticker})
+     **Using Simulated Order Book** (Real data unavailable for {ticker})
     
     - Exponential decay model (academic validation: Cont et al. 2010)
     - Appropriate for educational/research purposes
@@ -286,11 +286,11 @@ else:
 # Tabs
 # ============================================================================
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📊 Order Book Depth",
-    "🔥 Liquidity Heatmap",
-    "💥 Liquidity Crisis",
-    "📈 Market Impact",
-    "📉 Spread & Metrics"
+    " Order Book Depth",
+    " Liquidity Heatmap",
+    " Liquidity Crisis",
+    " Market Impact",
+    " Spread & Metrics"
 ])
 
 # ============================================================================
@@ -304,12 +304,12 @@ with tab1:
     """)
     
     # Educational disclaimer
-    with st.expander("📚 About This Order Book Data", expanded=False):
+    with st.expander(" About This Order Book Data", expanded=False):
         st.markdown("""
         **Data Source:**
-        - ✅ **Spread & Mid-Price:** Real-time from Yahoo Finance
-        - ✅ **Depth Scaling:** Calibrated to actual average daily volume
-        - ⚠️ **Level 2 Structure:** Simulated using exponential decay model
+        -  **Spread & Mid-Price:** Real-time from Yahoo Finance
+        -  **Depth Scaling:** Calibrated to actual average daily volume
+        -  **Level 2 Structure:** Simulated using exponential decay model
         
         **Academic Validation:**
         - Model validated by Cont, Kukanov & Stoikov (2010) "The Price Impact of Order Book Events"
@@ -317,14 +317,14 @@ with tab1:
         - Used in academic research (MIT, Stanford, Oxford quantitative finance programs)
         
         **Appropriate For:**
-        - ✅ Understanding market microstructure concepts
-        - ✅ Testing market impact models (Almgren-Chriss)
-        - ✅ Liquidity risk analysis and stress testing
-        - ✅ Educational simulations and visualizations
+        -  Understanding market microstructure concepts
+        -  Testing market impact models (Almgren-Chriss)
+        -  Liquidity risk analysis and stress testing
+        -  Educational simulations and visualizations
         
         **Not Recommended For:**
-        - ❌ High-frequency trading strategies (requires real L2 tick data)
-        - ❌ Sub-second execution analysis (requires exchange co-location)
+        -  High-frequency trading strategies (requires real L2 tick data)
+        -  Sub-second execution analysis (requires exchange co-location)
         
         **Professional Alternatives:**
         - **Polygon.io:** Real-time L2 data ($199/month)
@@ -595,7 +595,7 @@ with tab3:
         
         # Show crisis metrics
         if st.session_state.shock_applied:
-            st.warning("⚠️ Crisis Mode Active")
+            st.warning(" Crisis Mode Active")
             
             current_spread = ob.get_spread()
             normal_spread = ob.tick_size * 2
@@ -1080,17 +1080,17 @@ with tab5:
     
     # Score interpretation
     if overall_score >= 80:
-        st.success("🟢 **Excellent Liquidity** - Tight spreads, deep markets, balanced order flow")
+        st.success(" **Excellent Liquidity** - Tight spreads, deep markets, balanced order flow")
     elif overall_score >= 60:
-        st.info("🟡 **Good Liquidity** - Acceptable trading conditions with moderate costs")
+        st.info(" **Good Liquidity** - Acceptable trading conditions with moderate costs")
     elif overall_score >= 40:
-        st.warning("🟠 **Fair Liquidity** - Elevated costs, use limit orders")
+        st.warning(" **Fair Liquidity** - Elevated costs, use limit orders")
     else:
-        st.error("🔴 **Poor Liquidity** - High impact costs, consider waiting or splitting orders")
+        st.error(" **Poor Liquidity** - High impact costs, consider waiting or splitting orders")
 
 # Footer
 st.markdown("---")
 st.markdown(
     "**Liquidity & Market Microstructure Analysis** | Order Book Simulation | "
-    "⚠️ Simulated data for demonstration purposes"
+    " Simulated data for demonstration purposes"
 )

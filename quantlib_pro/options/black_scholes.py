@@ -449,3 +449,103 @@ def implied_volatility(
     raise RuntimeError(
         f"Implied volatility did not converge after {max_iterations} iterations"
     )
+
+
+class BlackScholesModel:
+    """
+    Black-Scholes option pricing model class.
+    
+    Provides a convenient interface for pricing European options and calculating Greeks.
+    """
+    
+    def __init__(self, spot: float, strike: float, rate: float, dividend: float = 0.0, 
+                 volatility: float = 0.2, time_to_expiry: float = 1.0):
+        """
+        Initialize Black-Scholes model parameters.
+        
+        Parameters
+        ----------
+        spot : float
+            Current stock price
+        strike : float
+            Strike price
+        rate : float
+            Risk-free interest rate
+        dividend : float, optional
+            Dividend yield (default 0.0)
+        volatility : float, optional
+            Volatility (default 0.2)
+        time_to_expiry : float, optional
+            Time to expiry in years (default 1.0)
+        """
+        self.spot = spot
+        self.strike = strike
+        self.rate = rate
+        self.dividend = dividend
+        self.volatility = volatility
+        self.time_to_expiry = time_to_expiry
+        
+        # Adjust for dividend yield
+        self.adjusted_spot = spot * math.exp(-dividend * time_to_expiry) if dividend != 0 else spot
+    
+    def call_price(self) -> float:
+        """Calculate call option price."""
+        return price_call(self.adjusted_spot, self.strike, self.time_to_expiry, 
+                         self.rate, self.volatility)
+    
+    def put_price(self) -> float:
+        """Calculate put option price."""
+        return price_put(self.adjusted_spot, self.strike, self.time_to_expiry,
+                        self.rate, self.volatility)
+    
+    def delta_call(self) -> float:
+        """Calculate call delta."""
+        return delta(self.adjusted_spot, self.strike, self.time_to_expiry,
+                    self.rate, self.volatility, OptionType.CALL)
+    
+    def delta_put(self) -> float:
+        """Calculate put delta."""
+        return delta(self.adjusted_spot, self.strike, self.time_to_expiry,
+                    self.rate, self.volatility, OptionType.PUT)
+    
+    def gamma(self) -> float:
+        """Calculate gamma (same for calls and puts)."""
+        return gamma(self.adjusted_spot, self.strike, self.time_to_expiry,
+                    self.rate, self.volatility)
+    
+    def vega(self) -> float:
+        """Calculate vega (same for calls and puts)."""
+        return vega(self.adjusted_spot, self.strike, self.time_to_expiry,
+                   self.rate, self.volatility)
+    
+    def theta_call(self) -> float:
+        """Calculate call theta."""
+        return theta(self.adjusted_spot, self.strike, self.time_to_expiry,
+                    self.rate, self.volatility, OptionType.CALL)
+    
+    def theta_put(self) -> float:
+        """Calculate put theta."""
+        return theta(self.adjusted_spot, self.strike, self.time_to_expiry,
+                    self.rate, self.volatility, OptionType.PUT)
+    
+    def rho_call(self) -> float:
+        """Calculate call rho."""
+        return rho(self.adjusted_spot, self.strike, self.time_to_expiry,
+                  self.rate, self.volatility, OptionType.CALL)
+    
+    def rho_put(self) -> float:
+        """Calculate put rho."""
+        return rho(self.adjusted_spot, self.strike, self.time_to_expiry,
+                  self.rate, self.volatility, OptionType.PUT)
+    
+    def implied_vol(self, market_price: float, option_type: OptionType) -> float:
+        """Calculate implied volatility from market price."""
+        result = implied_volatility(
+            market_price=market_price,
+            S=self.adjusted_spot,
+            K=self.strike,
+            T=self.time_to_expiry,
+            r=self.rate,
+            option_type=option_type
+        )
+        return result['implied_volatility']

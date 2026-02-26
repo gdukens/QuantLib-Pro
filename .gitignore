@@ -101,6 +101,8 @@ temp/
 data/raw/*.csv
 data/raw/*.parquet
 data/cache/*.parquet
+cache/parquet/*.parquet
+cache/
 *.h5
 *.hdf5
 

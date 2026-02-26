@@ -21,7 +21,7 @@ from quantlib_pro.data.market_data import MarketDataProvider
 # Configure page
 st.set_page_config(
     page_title="Trading Signals & Strategy Lab",
-    page_icon="📡",
+    page_icon="",
     layout="wide"
 )
 
@@ -212,7 +212,7 @@ class Backtester:
 # ============================================================================
 # Page Header
 # ============================================================================
-st.title("📡 Trading Signals & Strategy Lab")
+st.title("Trading Signals & Strategy Lab")
 st.markdown("""
 Generate trading signals and backtest strategies with real market data
 """)
@@ -220,10 +220,10 @@ Generate trading signals and backtest strategies with real market data
 # ============================================================================
 # Sidebar Configuration
 # ============================================================================
-st.sidebar.header("⚙️ Configuration")
+st.sidebar.header("Configuration")
 
 # Stock selection
-st.sidebar.subheader("📊 Stock Selection")
+st.sidebar.subheader("Stock Selection")
 ticker = st.sidebar.selectbox(
     "Select Asset",
     options=COMMON_TICKERS,
@@ -244,7 +244,7 @@ else:
     ticker = ticker.upper()
 
 # Date range
-st.sidebar.subheader("📅 Date Range")
+st.sidebar.subheader("Date Range")
 date_preset = st.sidebar.selectbox(
     "Preset Range",
     ["1 Month", "3 Months", "6 Months", "1 Year", "2 Years", "5 Years", "Custom"]
@@ -269,7 +269,7 @@ else:
     start_date = end_date - timedelta(days=days_map[date_preset])
 
 # Strategy parameters
-st.sidebar.subheader("📈 Strategy Parameters")
+st.sidebar.subheader("Strategy Parameters")
 
 # Momentum parameters
 with st.sidebar.expander("Momentum Strategy", expanded=True):
@@ -288,7 +288,7 @@ with st.sidebar.expander("Bollinger Bands Strategy"):
     bb_std = st.slider("Std Deviations", 1.0, 3.0, 2.0, 0.5)
 
 # Backtesting parameters
-st.sidebar.subheader("💰 Backtesting Setup")
+st.sidebar.subheader("Backtesting Setup")
 initial_capital = st.sidebar.number_input(
     "Initial Capital ($)",
     min_value=1000,
@@ -351,12 +351,12 @@ except Exception as e:
 # Tabs
 # ============================================================================
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-    "📊 Signal Generator",
-    "⚔️ Strategy Battle",
-    "📈 Signal Analysis",
-    "🎯 Performance Metrics",
-    "🏆 Battle Simulator",
-    "💹 Buy vs Sell Signals"
+    " Signal Generator",
+    " Strategy Battle",
+    " Signal Analysis",
+    " Performance Metrics",
+    " Battle Simulator",
+    " Buy vs Sell Signals"
 ])
 
 # ============================================================================
@@ -367,8 +367,8 @@ with tab1:
     
     st.markdown("""
     **Moving Average Crossover Signals** - Classic trend-following strategy.
-    - **Buy Signal** (🟢): Short MA crosses above Long MA
-    - **Sell Signal** (🔴): Short MA crosses below Long MA
+    - **Buy Signal** (): Short MA crosses above Long MA
+    - **Sell Signal** (): Short MA crosses below Long MA
     """)
     
     # Generate signals
@@ -614,7 +614,7 @@ with tab2:
             best_strategy = results_df.loc[best_strategy_idx]
             
             st.success(f"""
-            🏆 **Winner**: {best_strategy['Strategy']}
+             **Winner**: {best_strategy['Strategy']}
             - Total Return: {best_strategy['Total Return']:.2f}%
             - Sharpe Ratio: {best_strategy['Sharpe Ratio']:.2f}
             - Max Drawdown: {best_strategy['Max Drawdown']:.2f}%
@@ -880,7 +880,7 @@ with tab4:
 # Tab 5: Algorithmic Trading Battle Simulator
 # ============================================================================
 with tab5:
-    st.header("⚔️ Algorithmic Trading Battle Simulator")
+    st.header("Algorithmic Trading Battle Simulator")
     
     st.markdown("""
     **Strategy Showdown** - Watch three different trading strategies compete head-to-head on the same market data.
@@ -908,7 +908,7 @@ with tab5:
             step=0.01
         ) / 100
     
-    if st.button("🚀 Start Battle", type="primary"):
+    if st.button(" Start Battle", type="primary"):
         with st.spinner("Running strategy battle..."):
             # Create strategies
             momentum_strat = MomentumStrategy(20, 50)
@@ -943,7 +943,7 @@ with tab5:
                 })
             
             # Display scoreboard
-            st.subheader("🏆 Final Scoreboard")
+            st.subheader("Final Scoreboard")
             
             scoreboard_df = pd.DataFrame(results_data)
             scoreboard_df = scoreboard_df.sort_values('Total Return (%)', ascending=False)
@@ -972,10 +972,10 @@ with tab5:
             winner_name = scoreboard_df.iloc[0]['Strategy']
             winner_return = scoreboard_df.iloc[0]['Total Return (%)']
             
-            st.success(f"🏆 **{winner_name}** wins with {winner_return:.2f}% return!")
+            st.success(f" **{winner_name}** wins with {winner_return:.2f}% return!")
             
             # Equity race chart
-            st.subheader("📈 Equity Curve Race")
+            st.subheader("Equity Curve Race")
             
             fig = go.Figure()
             
@@ -1009,7 +1009,7 @@ with tab5:
             st.plotly_chart(fig, use_container_width=True)
             
             # Performance comparison radar chart
-            st.subheader("📊 Multi-Metric Comparison")
+            st.subheader("Multi-Metric Comparison")
             
             # Prepare data for radar chart
             metrics_list = ['Total Return (%)', 'Sharpe Ratio', 'Win Rate (%)']
@@ -1053,7 +1053,7 @@ with tab5:
             st.plotly_chart(fig_radar, use_container_width=True)
             
             # Key insights
-            st.subheader("🔍 Key Insights")
+            st.subheader("Key Insights")
             
             col1, col2, col3 = st.columns(3)
             
@@ -1085,7 +1085,7 @@ with tab5:
 # Tab 6: Buy vs Sell Signal Generator
 # ============================================================================
 with tab6:
-    st.header("📊 Buy vs Sell Signal Generator")
+    st.header("Buy vs Sell Signal Generator")
     
     st.markdown("""
     **Smart Signal Detection** - Identify optimal buy and sell points based on moving average crossovers.
@@ -1114,7 +1114,7 @@ with tab6:
         )
     
     if signal_short_window >= signal_long_window:
-        st.warning("⚠️ Short window must be less than long window")
+        st.warning(" Short window must be less than long window")
         st.stop()
     
     if st.button("Generate Signals", type="primary"):
@@ -1152,7 +1152,7 @@ with tab6:
             sell_signals = signal_data[signal_data['Position'] == -1]
             
             # Display statistics
-            st.subheader("📈 Signal Statistics")
+            st.subheader("Signal Statistics")
             
             col1, col2, col3, col4 = st.columns(4)
             
@@ -1171,7 +1171,7 @@ with tab6:
                 st.metric("Avg Days/Signal", f"{days_per_signal:.1f}")
             
             # Plot signals
-            st.subheader("📊 Price Chart with Buy/Sell Signals")
+            st.subheader("Price Chart with Buy/Sell Signals")
             
             fig = go.Figure()
             
@@ -1242,7 +1242,7 @@ with tab6:
             st.plotly_chart(fig, use_container_width=True)
             
             # Recent signals table
-            st.subheader("📋 Recent Signals (Last 10)")
+            st.subheader("Recent Signals (Last 10)")
             
             # Combine and sort signals
             all_signals = []
@@ -1250,7 +1250,7 @@ with tab6:
             for idx in buy_signals.index[-5:]:
                 all_signals.append({
                     'Date': idx.strftime('%Y-%m-%d'),
-                    'Type': '🟢 BUY',
+                    'Type': ' BUY',
                     'Price': f"${buy_signals.loc[idx, 'Close']:.2f}",
                     'Short MA': f"${buy_signals.loc[idx, 'Short_MA']:.2f}",
                     'Long MA': f"${buy_signals.loc[idx, 'Long_MA']:.2f}"
@@ -1259,7 +1259,7 @@ with tab6:
             for idx in sell_signals.index[-5:]:
                 all_signals.append({
                     'Date': idx.strftime('%Y-%m-%d'),
-                    'Type': '🔴 SELL',
+                    'Type': ' SELL',
                     'Price': f"${sell_signals.loc[idx, 'Close']:.2f}",
                     'Short MA': f"${sell_signals.loc[idx, 'Short_MA']:.2f}",
                     'Long MA': f"${sell_signals.loc[idx, 'Long_MA']:.2f}"
@@ -1273,7 +1273,7 @@ with tab6:
                 st.info("No signals generated in the selected period")
             
             # Signal quality analysis
-            st.subheader("🎯 Signal Quality Analysis")
+            st.subheader("Signal Quality Analysis")
             
             if len(buy_signals) > 0 and len(sell_signals) > 0:
                 # Calculate forward returns after buy signals
@@ -1305,13 +1305,13 @@ with tab6:
                     
                     with col2:
                         if avg_buy_return > 0:
-                            st.success("✅ Buy signals show positive forward returns")
+                            st.success(" Buy signals show positive forward returns")
                         else:
-                            st.warning("⚠️ Buy signals show negative forward returns")
+                            st.warning(" Buy signals show negative forward returns")
 
 # Footer
 st.markdown("---")
 st.markdown(
     "**Trading Signals & Strategy Lab** | Powered by Real Market Data | "
-    "⚠️ Past performance does not guarantee future results"
+    " Past performance does not guarantee future results"
 )

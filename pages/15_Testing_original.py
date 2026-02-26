@@ -1,5 +1,5 @@
 """
-🧪 Testing & Validation Dashboard
+ Testing & Validation Dashboard
 
 Comprehensive testing interface:
 - Load testing and performance benchmarks
@@ -19,19 +19,19 @@ import time
 # Page config
 st.set_page_config(
     page_title="Testing & Validation",
-    page_icon="🧪",
+    page_icon="",
     layout="wide",
 )
 
-st.title("🧪 Testing & Validation Dashboard")
+st.title("Testing & Validation Dashboard")
 st.markdown("Performance testing, model validation, and chaos engineering")
 
 # Tabs for different testing types
 tab1, tab2, tab3, tab4 = st.tabs([
-    "⚡ Load Testing",
-    "✅ Model Validation",
-    "💥 Chaos Engineering",
-    "📊 Integration Tests"
+    " Load Testing",
+    " Model Validation",
+    " Chaos Engineering",
+    " Integration Tests"
 ])
 
 # ============================================================================
@@ -64,7 +64,7 @@ with tab1:
     
     active_scenarios = [name for name, enabled in scenarios_config.items() if enabled]
     
-if run_load_test := st.button("▶️ Run Load Test", type="primary"):
+if run_load_test := st.button("▶ Run Load Test", type="primary"):
         with st.spinner("Running load test..."):
             # Simulate load test results
             progress = st.progress(0)
@@ -97,7 +97,7 @@ if run_load_test := st.button("▶️ Run Load Test", type="primary"):
             results_df = pd.DataFrame(results_data)
             
             # Display results
-            st.success(f"✅ Load test completed in {duration}s")
+            st.success(f" Load test completed in {duration}s")
             
             # Metrics summary
             col1, col2, col3, col4 = st.columns(4)
@@ -167,7 +167,7 @@ if run_load_test := st.button("▶️ Run Load Test", type="primary"):
                         'Metric': 'P95',
                         'Actual': row['P95 (ms)'],
                         'Target': bench['P95'],
-                        'Status': '✅' if row['P95 (ms)'] <= bench['P95'] else '❌',
+                        'Status': '' if row['P95 (ms)'] <= bench['P95'] else '',
                     })
                     
                     benchmark_results.append({
@@ -175,7 +175,7 @@ if run_load_test := st.button("▶️ Run Load Test", type="primary"):
                         'Metric': 'P99',
                         'Actual': row['P99 (ms)'],
                         'Target': bench['P99'],
-                        'Status': '✅' if row['P99 (ms)'] <= bench['P99'] else '❌',
+                        'Status': '' if row['P99 (ms)'] <= bench['P99'] else '',
                     })
             
             benchmark_df = pd.DataFrame(benchmark_results)
@@ -187,7 +187,7 @@ if run_load_test := st.button("▶️ Run Load Test", type="primary"):
 with tab2:
     st.header("Model Validation Results")
     
-    if st.button("🔍 Run Model Validation", type="primary"):
+    if st.button(" Run Model Validation", type="primary"):
         with st.spinner("Validating models..."):
             # Simulate validation
             time.sleep(2)
@@ -294,9 +294,9 @@ with tab2:
             
             # Overall status
             if pass_rate >= 90:
-                st.success(f"✅ VALIDATION PASSED ({pass_rate:.1f}% success rate)")
+                st.success(f" VALIDATION PASSED ({pass_rate:.1f}% success rate)")
             else:
-                st.error(f"❌ VALIDATION FAILED ({pass_rate:.1f}% success rate)")
+                st.error(f" VALIDATION FAILED ({pass_rate:.1f}% success rate)")
 
 # ============================================================================
 # Tab 3: Chaos Engineering
@@ -331,7 +331,7 @@ with tab3:
         'Timeout': st.checkbox("Timeout", value=False),
     }
     
-    if st.button("💥 Run Chaos Experiment", type="primary"):
+    if st.button(" Run Chaos Experiment", type="primary"):
         with st.spinner("Running chaos experiment..."):
             time.sleep(3)
             
@@ -376,9 +376,9 @@ with tab3:
             
             # Overall status
             if passed_count == total_count:
-                st.success("✅ All resilience patterns passed!")
+                st.success(" All resilience patterns passed!")
             else:
-                st.warning(f"⚠️ {total_count - passed_count} pattern(s) failed")
+                st.warning(f" {total_count - passed_count} pattern(s) failed")
 
 # ============================================================================
 # Tab 4: Integration Tests
@@ -386,7 +386,7 @@ with tab3:
 with tab4:
     st.header("Integration Test Results")
     
-    if st.button("🔗 Run Integration Tests", type="primary"):
+    if st.button(" Run Integration Tests", type="primary"):
         with st.spinner("Running integration tests..."):
             time.sleep(2)
             
@@ -445,4 +445,4 @@ with tab4:
             
             st.plotly_chart(fig, use_container_width=True)
             
-            st.success("✅ All integration tests passed!")
+            st.success(" All integration tests passed!")

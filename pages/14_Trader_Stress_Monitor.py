@@ -28,7 +28,7 @@ from streamlit_webrtc import RTCConfiguration, WebRtcMode, webrtc_streamer
 # ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="Trader Stress Monitor",
-    page_icon="🧠",
+    page_icon="",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -283,7 +283,7 @@ def make_video_callback(shared: StressState, landmarker, thresholds: dict):
 #  PAGE LAYOUT
 # ══════════════════════════════════════════════════════════════════════════════
 def main():
-    st.title("🧠 Trader Stress Monitor")
+    st.title("Trader Stress Monitor")
     st.caption(
         "Real-time facial stress detection powered by "
         "**MediaPipe FaceLandmarker** + **WebRTC**"
@@ -323,7 +323,7 @@ def main():
 
     # ── Sidebar ───────────────────────────────────────────────────────────────
     with st.sidebar:
-        st.header("⚙️ Thresholds")
+        st.header("Thresholds")
         thresholds = {
             "calm": st.slider("Calm  ↔ Mild  (score)", 0.02, 0.20,
                               DEFAULT_THRESHOLDS["calm"], 0.01, key="thr_calm"),
@@ -334,9 +334,9 @@ def main():
         }
 
         st.divider()
-        st.header("📓 Session Notes")
+        st.header("Session Notes")
         note_text = st.text_area("Current conditions / notes:", height=80, key="note_text")
-        if st.button("💾 Save Note", use_container_width=True):
+        if st.button(" Save Note", use_container_width=True):
             if "session_notes" not in st.session_state:
                 st.session_state.session_notes = []
             st.session_state.session_notes.append(
@@ -350,14 +350,14 @@ def main():
                 st.markdown(f"**{n['time']}** — {n['note']}")
 
         st.divider()
-        if st.button("🗑️ Clear Session History", use_container_width=True):
+        if st.button(" Clear Session History", use_container_width=True):
             with shared.lock:
                 shared.history.clear()
                 shared.session_start = time.time()
             st.rerun()
 
         st.divider()
-        st.markdown("### ℹ️ How it works")
+        st.markdown("### ℹ How it works")
         st.markdown(
             "| Indicator | Weight |\n"
             "|---|---|\n"
@@ -372,7 +372,7 @@ def main():
     col_video, col_metrics = st.columns([3, 2], gap="medium")
 
     with col_video:
-        st.subheader("📹 Live Feed")
+        st.subheader("Live Feed")
         st.caption(
             "Click **START** → allow camera access → stress overlay appears on the feed."
         )
@@ -393,7 +393,7 @@ def main():
 
     # ── Metrics panel ─────────────────────────────────────────────────────────
     with col_metrics:
-        st.subheader("📊 Live Metrics")
+        st.subheader("Live Metrics")
 
         score_ph   = st.empty()
         alert_ph   = st.empty()
@@ -441,13 +441,13 @@ def main():
             )
 
             if level == "High":
-                alert_ph.error("🚨 **HIGH STRESS** — Consider closing positions or taking a break.")
+                alert_ph.error(" **HIGH STRESS** — Consider closing positions or taking a break.")
             elif level == "Mild":
-                alert_ph.warning("⚠️ **Mild stress** — Stay disciplined; avoid impulsive trades.")
+                alert_ph.warning(" **Mild stress** — Stay disciplined; avoid impulsive trades.")
             else:
-                alert_ph.success("✅ **Calm** — You're in the zone.")
+                alert_ph.success(" **Calm** — You're in the zone.")
         else:
-            score_ph.info("👤 No face detected — centre yourself in the camera view.")
+            score_ph.info(" No face detected — centre yourself in the camera view.")
             alert_ph.empty()
 
         # ── Metric progress bars ──────────────────────────────────────────────
@@ -485,7 +485,7 @@ def main():
 
         # ── History chart ─────────────────────────────────────────────────────
         if len(history_snap) > 5:
-            hist_header.subheader("📈 Stress History (Session)")
+            hist_header.subheader(" Stress History (Session)")
             df_hist = pd.DataFrame(history_snap)
             df_hist["time"] = pd.to_datetime(df_hist["time"])
             df_hist = df_hist.set_index("time")[["score"]]
@@ -509,7 +509,7 @@ def main():
             df_export = pd.DataFrame(history_snap)
             csv = df_export.to_csv(index=False).encode("utf-8")
             export_ph.download_button(
-                "⬇️ Export Session CSV", csv,
+                "⬇ Export Session CSV", csv,
                 f"stress_session_{datetime.now().strftime('%Y%m%d_%H%M')}.csv",
                 "text/csv", use_container_width=False,
             )
@@ -521,12 +521,12 @@ def main():
         table_ph.empty()
 
         st.info(
-            "▶️  Click the **START** button in the video panel above and allow "
+            "▶  Click the **START** button in the video panel above and allow "
             "camera access. The stress overlay will appear on the live feed and "
             "the metrics panel will update in real time."
         )
 
-        with st.expander("📖 Methodology & Scoring", expanded=True):
+        with st.expander(" Methodology & Scoring", expanded=True):
             st.markdown(
                 """
 ### Stress Score Formula
@@ -550,9 +550,9 @@ $$
 ### Thresholds
 | Level | Score Range | Action |
 |---|---|---|
-| 🟢 **Calm** | < 0.08 | Continue trading normally |
-| 🟡 **Mild** | 0.08 – 0.25 | Increase caution; review position sizes |
-| 🔴 **High** | > 0.25 | Consider stepping away; avoid new positions |
+|  **Calm** | < 0.08 | Continue trading normally |
+|  **Mild** | 0.08 – 0.25 | Increase caution; review position sizes |
+|  **High** | > 0.25 | Consider stepping away; avoid new positions |
 
 > *Scores are normalised 0–1. Adjust thresholds in the sidebar to match your baseline.*
 """

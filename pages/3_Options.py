@@ -19,11 +19,11 @@ from quantlib_pro.utils.types import OptionType
 # Page config
 st.set_page_config(
     page_title="Options Pricing - QuantLib Pro",
-    page_icon="📊",
+    page_icon="",
     layout="wide",
 )
 
-st.title("📊 Options Pricing")
+st.title(" Options Pricing")
 st.markdown("Price European options using Black-Scholes and Monte Carlo methods, analyze Greeks, and visualize payoffs.")
 
 # Initialize session state
@@ -127,17 +127,17 @@ with st.sidebar:
         )
     
     # Price button
-    price_button = st.button("💰 Price Option", type="primary", use_container_width=True)
+    price_button = st.button(" Price Option", type="primary", use_container_width=True)
 
 # Main content
 tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
-    "💰 Pricing",
-    "📈 Greeks", 
-    "📊 Payoff Diagram",
-    "🔍 Implied Vol",
-    "📉 Tail Risk Distribution",
-    "🌊 Volatility Shockwave",
-    "💹 BS Visual Explainer"
+    " Pricing",
+    " Greeks", 
+    " Payoff Diagram",
+    " Implied Vol",
+    " Tail Risk Distribution",
+    " Volatility Shockwave",
+    " BS Visual Explainer"
 ])
 
 with tab1:
@@ -435,7 +435,7 @@ with tab2:
             )
             
             if st.session_state.option_results["method"] == "Bachelier":
-                st.info("ℹ️ **Bachelier Model**: Rho is not applicable (rate-independent normal model)")
+                st.info("ℹ **Bachelier Model**: Rho is not applicable (rate-independent normal model)")
         
         # Sensitivity analysis
         st.subheader("Sensitivity Analysis")
@@ -655,7 +655,7 @@ with tab4:
                 # Compare with input volatility
                 if abs(iv_result['implied_volatility'] - volatility) > 0.01:
                     st.info(
-                        f"ℹ️ Implied vol ({iv_result['implied_volatility']*100:.2f}%) differs from "
+                        f"ℹ Implied vol ({iv_result['implied_volatility']*100:.2f}%) differs from "
                         f"input vol ({volatility*100:.2f}%). This is expected if observed price ≠ theoretical price."
                     )
                 
@@ -666,7 +666,7 @@ with tab4:
 # Tab 5: Tail Risk Distribution Morph Engine
 # ============================================================================
 with tab5:
-    st.header("📉 Tail Risk Distribution Morph Engine")
+    st.header(" Tail Risk Distribution Morph Engine")
     
     st.markdown("""
     Visualize how return distributions morph from normal (Gaussian) to heavy-tailed (Student-t) under market stress.
@@ -815,7 +815,7 @@ with tab5:
             st.plotly_chart(fig, use_container_width=True)
             
             # Metrics table
-            with st.expander("📊 Show Detailed Metrics"):
+            with st.expander(" Show Detailed Metrics"):
                 df_metrics = pd.DataFrame({
                     "Time Step": time_grid,
                     "VaR (5%)": var_grid,
@@ -843,7 +843,7 @@ with tab5:
 # Tab 6: Volatility Shockwave Simulator
 # ============================================================================
 with tab6:
-    st.header("🌊 Volatility Shockwave Simulator")
+    st.header(" Volatility Shockwave Simulator")
     
     st.markdown("""
     Simulate random volatility shockwaves and their impact on stock prices and option values.
@@ -1026,7 +1026,7 @@ with tab6:
             
             # Display results
             shock_count = sum(sim.shockwaves)
-            st.info(f"🌊 Detected **{shock_count}** volatility shockwaves during simulation")
+            st.info(f" Detected **{shock_count}** volatility shockwaves during simulation")
             
             # Create visualizations
             import plotly.graph_objects as go
@@ -1080,7 +1080,7 @@ with tab6:
             st.plotly_chart(fig, use_container_width=True)
             
             # Greeks display
-            with st.expander("📈 View Greeks Evolution"):
+            with st.expander(" View Greeks Evolution"):
                 col1, col2 = st.columns(2)
                 
                 with col1:
@@ -1117,7 +1117,7 @@ with tab6:
 # Tab 7: Black-Scholes Visual Explainer
 # ============================================================================
 with tab7:
-    st.header("💹 Black-Scholes Visual Explainer")
+    st.header(" Black-Scholes Visual Explainer")
     
     st.markdown("""
     **Interactive Black-Scholes Model** - Visualize option prices and Greeks in 3D space.
@@ -1127,7 +1127,7 @@ with tab7:
     col1, col2 = st.columns([3, 1])
     
     with col2:
-        st.subheader("⚙️ Model Parameters")
+        st.subheader(" Model Parameters")
         
         bs_S = st.slider(
             "Stock Price (S)",
@@ -1250,7 +1250,7 @@ with tab7:
         )
         
         # Display Greeks
-        st.subheader("📊 Greeks Dashboard")
+        st.subheader(" Greeks Dashboard")
         
         greek_col1, greek_col2, greek_col3, greek_col4, greek_col5 = st.columns(5)
         
@@ -1270,7 +1270,7 @@ with tab7:
             st.metric("Rho (ρ)", f"{bs_rho_val:.4f}", help="Sensitivity to interest rate changes")
         
         # 3D Surface Plot: S vs sigma vs Price
-        st.subheader("🌐 3D Price Surface")
+        st.subheader(" 3D Price Surface")
         
         S_range = np.linspace(10, 300, 40)
         sigma_range = np.linspace(0.01, 1, 40)
@@ -1307,7 +1307,7 @@ with tab7:
         st.plotly_chart(fig_3d, use_container_width=True)
         
         # Delta curve
-        st.subheader("📈 Delta vs Stock Price")
+        st.subheader(" Delta vs Stock Price")
         
         delta_curve = [bs_delta(s, bs_K, bs_T, bs_r, bs_sigma, bs_option_type) for s in S_range]
         
@@ -1349,7 +1349,7 @@ with tab7:
         st.plotly_chart(fig_delta, use_container_width=True)
         
         # Interpretation
-        st.subheader("🎓 Interpretation")
+        st.subheader(" Interpretation")
         
         col1a, col2a = st.columns(2)
         
@@ -1357,16 +1357,16 @@ with tab7:
             st.markdown("**Moneyness:**")
             if bs_S > bs_K:
                 if bs_option_type == 'call':
-                    st.success("✅ In-the-Money (ITM) - Call has intrinsic value")
+                    st.success(" In-the-Money (ITM) - Call has intrinsic value")
                 else:
-                    st.error("❌ Out-of-the-Money (OTM) - Put has no intrinsic value")
+                    st.error(" Out-of-the-Money (OTM) - Put has no intrinsic value")
             elif bs_S < bs_K:
                 if bs_option_type == 'call':
-                    st.error("❌ Out-of-the-Money (OTM) - Call has no intrinsic value")
+                    st.error(" Out-of-the-Money (OTM) - Call has no intrinsic value")
                 else:
-                    st.success("✅ In-the-Money (ITM) - Put has intrinsic value")
+                    st.success(" In-the-Money (ITM) - Put has intrinsic value")
             else:
-                st.info("⚖️ At-the-Money (ATM)")
+                st.info(" At-the-Money (ATM)")
         
         with col2a:
             st.markdown("**Time Value:**")
