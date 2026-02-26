@@ -45,6 +45,7 @@ from quantlib_pro.api.routers import (
 from quantlib_pro.api.routers_backtesting import backtesting_router
 from quantlib_pro.api.routers_analytics import analytics_router
 from quantlib_pro.api.routers_data import data_router
+from quantlib_pro.api.routers_realdata import realdata_router
 from quantlib_pro.api.routers_market_analysis import market_analysis_router
 from quantlib_pro.api.routers_signals import signals_router
 from quantlib_pro.api.routers_liquidity import liquidity_router
@@ -245,6 +246,12 @@ app.include_router(
 
 app.include_router(
     data_router,
+    prefix="/api/v1",
+    dependencies=[]
+)
+
+app.include_router(
+    realdata_router,
     prefix="/api/v1",
     dependencies=[]
 )
