@@ -20,14 +20,16 @@ plotly>=5.20.0
 seaborn>=0.13.0
 
 # ── Computer Vision ──────────────────────────────────────────
-opencv-python>=4.13.0
-mediapipe>=0.10.32
-av>=16.1.0
+# NOTE: Optional dependencies for advanced video features
+# Comment out if deployment fails due to system dependencies
+opencv-python-headless>=4.13.0
+# mediapipe>=0.10.32  # Large dependency - uncomment if needed
+# av>=16.1.0          # Video processing - uncomment if needed
 
 # ── UI ───────────────────────────────────────────────────────
 streamlit>=1.32.0
 streamlit-autorefresh>=1.0.1
-streamlit-webrtc>=0.64.5
+# streamlit-webrtc>=0.64.5  # WebRTC - uncomment if video streaming needed
 
 # ── Graph / Network ──────────────────────────────────────────
 networkx>=3.2.0

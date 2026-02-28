@@ -17,13 +17,35 @@ import time
 from collections import deque
 from datetime import datetime
 
-import av
-import cv2
 import numpy as np
 import pandas as pd
 import streamlit as st
 from streamlit_autorefresh import st_autorefresh
-from streamlit_webrtc import RTCConfiguration, WebRtcMode, webrtc_streamer
+
+# Optional video processing imports - cloud deployment friendly
+try:
+    import av
+    import cv2
+    from streamlit_webrtc import RTCConfiguration, WebRtcMode, webrtc_streamer
+    VIDEO_PROCESSING_AVAILABLE = True
+except ImportError as e:
+    VIDEO_PROCESSING_AVAILABLE = False
+    st.error(f"""
+    **Video Processing Dependencies Missing**
+    
+    The Trader Stress Monitor requires additional video processing libraries that are not available in this deployment:
+    - opencv-python or opencv-python-headless
+    - streamlit-webrtc  
+    - av (PyAV)
+    
+    To enable video features:
+    1. Install locally: `pip install opencv-python streamlit-webrtc av`
+    2. Or uncomment video dependencies in requirements.txt for full deployment
+    
+    **Error Details:** {str(e)}
+    """)
+    st.info("💡 **Alternative:** Use other QuantLib Pro features for quantitative analysis without video processing.")
+    st.stop()
 
 # ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(

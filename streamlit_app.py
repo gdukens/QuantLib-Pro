@@ -113,15 +113,24 @@ with st.sidebar:
     st.divider()
 
     st.markdown("### System Status")
-    import requests
-    import os
     
-    # Check API status
+    # Import requests at module level to avoid issues
     try:
-        r = requests.get("http://localhost:8000/health/", timeout=2)
-        st.success("API: Online") if r.status_code == 200 else st.warning("API: Degraded")
-    except Exception:
-        st.info("API: Standalone Mode")
+        import requests
+    except ImportError:
+        requests = None
+    
+    # Check API status (only if not in cloud environment)
+    is_cloud_deployment = os.getenv("STREAMLIT_SHARING_MODE") or os.getenv("STREAMLIT_CLOUD") or "streamlit.app" in os.getenv("HOSTNAME", "")
+    
+    if not is_cloud_deployment and requests:
+        try:
+            r = requests.get("http://localhost:8000/health/", timeout=1)
+            st.success("API: Online") if r.status_code == 200 else st.warning("API: Degraded")
+        except Exception:
+            st.info("API: Standalone Mode")
+    else:
+        st.info("API: Cloud Mode")
     
     # Check data providers
     fred_key = os.getenv("FRED_API_KEY", "")
@@ -137,6 +146,8 @@ with st.sidebar:
         st.warning("FRED: Configure in Settings")
     if av_ok:
         st.success("Alpha Vantage: Connected")
+    else:
+        st.warning("Alpha Vantage: Configure in Settings")
 
     st.divider()
     st.caption("v1.0.0 · Streamlit · FastAPI")
