@@ -526,10 +526,8 @@ MIT License - see [LICENSE](LICENSE) file for details.
 | **Enterprise** | Dedicated CSM | 1-2 hours | 24/7 availability |
 
 ### **Production Services**
-- **Custom Integration**: architecture@quantlibpro.com
-- **Enterprise Licensing**: enterprise@quantlibpro.com  
-- **Partnership Opportunities**: partnerships@quantlibpro.com
-- **Technical Support**: support@quantlibpro.com
+- **Primary Contact**: guersondukensjrjoseph@gmail.com
+- **Academic Contact**: gjose078@uottawa.ca
 
 **99.9% Uptime Guarantee** for Enterprise tier customers with dedicated infrastructure and priority support.
 
