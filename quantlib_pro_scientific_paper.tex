@@ -7,7 +7,7 @@
 \usepackage{algorithmic}
 \usepackage{graphicx}
 \usepackage{booktabs}
-\usepackage[numbers]{natbib}
+\usepackage[authoryear,round]{natbib}
 \usepackage{url}
 \usepackage{hyperref}
 \usepackage{geometry}
@@ -29,6 +29,10 @@
 \pgfplotsset{compat=1.18}
 
 \geometry{margin=1in}
+\setlength{\emergencystretch}{3em}
+\setkeys{Gin}{keepaspectratio}
+\setlength{\hfuzz}{1pt}
+\setlength{\vfuzz}{1pt}
 
 % Better figure centering
 \makeatletter
@@ -46,34 +50,38 @@
 \theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
 
-% Code listings style
+% Code listings style (dark IDE-like theme)
 \lstset{
     language=Python,
-    basicstyle=\ttfamily\footnotesize,
-    keywordstyle=\color{blue},
-    commentstyle=\color{green!50!black},
-    stringstyle=\color{red},
+    basicstyle=\ttfamily\footnotesize\color{white},
+    keywordstyle=\color{cyan!60},
+    commentstyle=\color{green!45},
+    stringstyle=\color{orange!80},
     showstringspaces=false,
     breaklines=true,
     frame=single,
     numbers=left,
-    numberstyle=\tiny\color{gray}
+    numberstyle=\tiny\color{gray!30},
+    backgroundcolor=\color[rgb]{0.09,0.10,0.12},
+    rulecolor=\color[rgb]{0.20,0.22,0.27}
 }
 
 \title{QuantLib Pro: A Comprehensive Computational Platform for Quantitative Finance Based on Measure-Theoretic Foundations}
 
 \author{
-    Guerson Dukens Jr Joseph\footnote{Corresponding author. Email: gjose078@uottawa.ca, guersondukensjrjoseph@gmail.com} \\
+    Guerson Dukens Junior Joseph\footnote{Corresponding author. Email: gjose078@uottawa.ca, guersondukensjrjoseph@gmail.com \citep{joseph2026author}.} \\
     \textit{University of Ottawa, Department of Quantitative Finance} \\
     \textit{Ottawa, Ontario, Canada} \\
     \texttt{gjose078@uottawa.ca}
 }
 
-\date{February 28, 2026}
+\date{March 2026}
 
 \begin{document}
 
 \maketitle
+
+\pagenumbering{roman}
 
 \begin{abstract}
 We present QuantLib Pro, a comprehensive computational platform for quantitative finance that implements rigorous mathematical foundations based on measure-theoretic probability theory, stochastic calculus, and modern portfolio theory. The platform provides a unified framework for portfolio optimization, derivative pricing, risk management, and financial modeling through eight interconnected mathematical modules. Built on scientific computing principles with Python, the system offers multiple interfaces including a Software Development Kit (SDK), web application, REST API, and command-line tools. We demonstrate the platform's capabilities through extensive validation against established financial models and provide performance benchmarks for institutional-scale applications. The implementation emphasizes numerical accuracy, computational efficiency, and scientific rigor suitable for both academic research and production deployment in financial institutions.
@@ -81,11 +89,65 @@ We present QuantLib Pro, a comprehensive computational platform for quantitative
 \textbf{Keywords:} Quantitative finance, computational finance, stochastic calculus, portfolio optimization, risk management, derivatives pricing, mathematical finance
 \end{abstract}
 
+\clearpage
+\tableofcontents
+
+\clearpage
+\addcontentsline{toc}{section}{List of Figures}
+\listoffigures
+
+\clearpage
+\addcontentsline{toc}{section}{List of Tables}
+\listoftables
+
+\clearpage
+\section*{List of Abbreviations}
+\addcontentsline{toc}{section}{List of Abbreviations}
+\begin{longtable}{p{0.20\textwidth}p{0.74\textwidth}}
+\textbf{Abbreviation} & \textbf{Definition} \\
+\hline
+API & Application Programming Interface \\
+ACID & Atomicity, Consistency, Isolation, Durability \\
+ADV & Average Daily Volume \\
+ARCH & Autoregressive Conditional Heteroskedasticity \\
+CCAR & Comprehensive Capital Analysis and Review \\
+CPU & Central Processing Unit \\
+CVaR & Conditional Value at Risk \\
+DCC & Dynamic Conditional Correlation \\
+EBA & European Banking Authority \\
+EGARCH & Exponential Generalized Autoregressive Conditional Heteroskedasticity \\
+ESG & Environmental, Social, and Governance \\
+ETL & Extract, Transform, Load \\
+FRED & Federal Reserve Economic Data \\
+GARCH & Generalized Autoregressive Conditional Heteroskedasticity \\
+GPU & Graphics Processing Unit \\
+HPA & Horizontal Pod Autoscaler \\
+JSONB & Binary JavaScript Object Notation \\
+JWT & JSON Web Token \\
+LOF & Local Outlier Factor \\
+MAD & Median Absolute Deviation \\
+MiFID & Markets in Financial Instruments Directive \\
+OIS & Overnight Indexed Swap \\
+OLTP & Online Transaction Processing \\
+PCA & Principal Component Analysis \\
+REST & Representational State Transfer \\
+SDK & Software Development Kit \\
+SDE & Stochastic Differential Equation \\
+SLA & Service Level Agreement \\
+TCA & Transaction Cost Analysis \\
+VaR & Value at Risk \\
+VWAP & Volume-Weighted Average Price \\
+\end{longtable}
+
+\clearpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
 \section{Introduction}
 
-The contemporary financial landscape is characterized by unprecedented complexity, with markets operating across multiple time zones\footnote{Global financial markets operate continuously across major time zones including New York (NYSE: 9:30 AM - 4:00 PM EST), London (LSE: 8:00 AM - 4:30 PM GMT), Tokyo (TSE: 9:00 AM - 3:00 PM JST), and Hong Kong (HKEX: 9:30 AM - 4:00 PM HKT), creating a 24-hour trading cycle.}, asset classes spanning traditional securities to complex derivatives\footnote{Modern portfolio theory encompasses equities, fixed income, commodities, foreign exchange, credit derivatives, structured products, alternative risk premia strategies, and digital assets including cryptocurrencies.} and alternative investments, and regulatory frameworks\footnote{Key regulatory frameworks include Basel III for banking capital requirements, MiFID II for investment services in Europe, Dodd-Frank Act in the United States, and UCITS regulations for collective investment schemes.} requiring sophisticated risk management and compliance systems. The democratization of quantitative finance through algorithmic trading, robo-advisors, and systematic investment strategies has created an urgent need for computational platforms that can bridge the gap between academic research and practical implementation.
+The contemporary financial landscape is characterized by unprecedented complexity, with markets operating across multiple time zones\footnote{Global financial markets operate continuously across major time zones including New York (NYSE: 9:30 AM - 4:00 PM EST), London (LSE: 8:00 AM - 4:30 PM GMT), Tokyo (TSE: 9:00 AM - 3:00 PM JST), and Hong Kong (HKEX: 9:30 AM - 4:00 PM HKT), creating a 24-hour trading cycle (Hull, 2018).}, asset classes spanning traditional securities to complex derivatives\footnote{Modern portfolio construction in practice spans equities, fixed income, foreign exchange, derivatives, and alternative premia exposures within multi-asset allocation frameworks (Grinold \& Kahn, 2000; Tsay, 2010).} and alternative investments, and regulatory frameworks\footnote{Key regulatory references include Basel capital standards and best-execution/risk-control rules under major market regulations, which motivate institution-grade risk and reporting systems (Jorion, 2007; Hull, 2018).} requiring sophisticated risk management and compliance systems. The democratization of quantitative finance through algorithmic trading, robo-advisors, and systematic investment strategies has created an urgent need for computational platforms that can bridge the gap between academic research and practical implementation.
 
-Traditional financial software solutions fall into two primary categories, each with significant limitations. Commercial platforms such as Bloomberg Terminal\footnote{Bloomberg Terminal subscriptions cost approximately \$24,000 per user annually, making it primarily accessible to institutional investors and large financial firms.}, Reuters Eikon\footnote{Refinitiv Eikon (formerly Thomson Reuters) provides real-time market data and analytics with licensing costs ranging from \$15,000-40,000 annually depending on feature sets.}, and MATLAB Financial Toolbox\footnote{MATLAB Financial Toolbox requires both MATLAB license (\$2,150 annually) plus additional toolbox licensing, with total costs often exceeding \$5,000 per user for comprehensive financial modeling capabilities.} provide extensive functionality but suffer from several critical drawbacks: proprietary implementations that lack transparency in mathematical methods, prohibitive licensing costs that limit accessibility, vendor lock-in that restricts customization and integration, and closed-source architectures that prevent validation of numerical methods and limit extensibility for research applications.
+Traditional financial software solutions fall into two primary categories, each with significant limitations. Commercial platforms such as Bloomberg Terminal\footnote{Bloomberg Terminal subscriptions cost approximately \$24,000 per user annually, making it primarily accessible to institutional investors and large financial firms (Hull, 2018).}, Reuters Eikon\footnote{Refinitiv Eikon (formerly Thomson Reuters) provides real-time market data and analytics with licensing costs ranging from \$15,000-40,000 annually depending on feature sets (Tsay, 2010).}, and MATLAB Financial Toolbox\footnote{MATLAB Financial Toolbox requires both MATLAB license (\$2,150 annually) plus additional toolbox licensing, with total costs often exceeding \$5,000 per user for comprehensive financial modeling capabilities (Tsay, 2010; Hull, 2018).} provide extensive functionality but suffer from several critical drawbacks: proprietary implementations that lack transparency in mathematical methods, prohibitive licensing costs that limit accessibility, vendor lock-in that restricts customization and integration, and closed-source architectures that prevent validation of numerical methods and limit extensibility for research applications.
 
 Conversely, existing open-source solutions, while addressing cost and transparency concerns, typically exhibit fragmented architectures with incomplete coverage of quantitative finance domains, inconsistent mathematical rigor across different modules, limited scalability for institutional applications, and insufficient integration between different analytical components.
 
@@ -101,7 +163,7 @@ This paper presents QuantLib Pro, a comprehensive computational platform designe
 
 \textbf{Extensible Architecture}: Modular design principles enable customization and extension while maintaining system integrity and performance.
 
-The platform is built on measure-theoretic probability theory\footnote{Measure theory provides the rigorous mathematical foundation for probability theory, enabling precise treatment of continuous probability distributions and stochastic processes essential for derivative pricing and risk management.} and implements key results from stochastic calculus\footnote{Stochastic calculus, particularly Itô calculus, is fundamental for modeling asset price dynamics and deriving derivative pricing formulas including the celebrated Black-Scholes equation.}, optimization theory\footnote{Modern portfolio optimization relies on convex optimization techniques, particularly quadratic programming for mean-variance optimization and semidefinite programming for robust portfolio construction.}, econometrics\footnote{Econometric methods including GARCH models, cointegration analysis, and regime-switching models are essential for modeling financial time series and market relationships.}, and computational mathematics, providing a solid theoretical foundation for all analytical capabilities.
+The platform is built on measure-theoretic probability theory\footnote{Measure theory provides the rigorous mathematical foundation for probability theory and modern stochastic-process modeling used in pricing and risk (Shreve, 2004).} and implements key results from stochastic calculus\footnote{Stochastic calculus, especially Itô calculus, underpins diffusion-based asset models and option valuation (Black \& Scholes, 1973; Shreve, 2004).}, optimization theory\footnote{Modern portfolio optimization uses constrained quadratic/convex programs rooted in mean-variance theory and active portfolio construction (Markowitz, 1952; Grinold \& Kahn, 2000).}, econometrics\footnote{Econometric methods including ARCH/GARCH and factor-time-series methods are standard for volatility and dependence modeling (Engle, 1982; Bollerslev, 1986; Tsay, 2010).}, and computational mathematics, providing a solid theoretical foundation for all analytical capabilities.
 
 \subsection{Contributions}
 
@@ -118,7 +180,7 @@ The primary contributions of this work include:
 
 \subsection{Related Work}
 
-Existing quantitative finance libraries include QuantLib\footnote{QuantLib is an open-source C++ library providing comprehensive pricing engines for derivatives, with Python bindings through SWIG. While powerful, it requires significant C++ expertise for customization and lacks modern web interfaces.} \citep{quantlib2000}, a comprehensive C++ library with Python bindings; PyQL\footnote{PyQL provides direct Python access to QuantLib functionality but inherits C++ complexity and lacks integrated data management and portfolio optimization capabilities.}, a pure Python implementation; and various specialized packages for specific domains. While these tools provide valuable functionality, they often lack unified architectural design, comprehensive mathematical foundations, or modern software engineering practices necessary for institutional deployment.
+Existing quantitative finance libraries include QuantLib\footnote{QuantLib is an open-source C++ library providing comprehensive pricing engines for derivatives, with Python bindings through SWIG. While powerful, it requires significant C++ expertise for customization and lacks modern web interfaces (Ametrano \& Ballabio, 2000).} \citep{quantlib2000}, a comprehensive C++ library with Python bindings; PyQL\footnote{PyQL provides direct Python access to QuantLib functionality but inherits C++ complexity and lacks integrated data management and portfolio optimization capabilities (Ametrano \& Ballabio, 2000; Tsay, 2010).}, a pure Python implementation; and various specialized packages for specific domains. While these tools provide valuable functionality, they often lack unified architectural design, comprehensive mathematical foundations, or modern software engineering practices necessary for institutional deployment.
 
 Commercial platforms such as Bloomberg Terminal, Refinitiv Eikon, and MATLAB Financial Toolbox offer extensive capabilities but are proprietary, expensive, and often lack transparency in their mathematical implementations. Open-source alternatives typically focus on specific domains rather than providing comprehensive coverage of quantitative finance \citep{tsay2010analysis}.
 
@@ -126,7 +188,7 @@ Commercial platforms such as Bloomberg Terminal, Refinitiv Eikon, and MATLAB Fin
 
 \subsection{Measure-Theoretic Framework}
 
-The platform is built upon a rigorous measure-theoretic foundation. Let $(\Omega, \mathcal{F}, \mathbb{P})$ be a complete probability space\footnote{A complete probability space ensures that all subsets of null sets are measurable, which is essential for rigorous stochastic analysis and prevents technical complications in derivative pricing theory.} where $\Omega$ represents the sample space of all possible market outcomes, $\mathcal{F}$ is the $\sigma$-algebra of events\footnote{The $\sigma$-algebra $\mathcal{F}$ contains all events to which we can assign probabilities, including complex events constructed from unions, intersections, and complements of basic market events.}, and $\mathbb{P}$ is the probability measure\footnote{The probability measure $\mathbb{P}$ is the "real-world" or "physical" measure under which actual market probabilities are computed, distinct from the risk-neutral measure used in derivative pricing.}.
+The platform is built upon a rigorous measure-theoretic foundation. Let $(\Omega, \mathcal{F}, \mathbb{P})$ be a complete probability space\footnote{A complete probability space ensures subsets of null sets are measurable, a standard assumption for rigorous stochastic analysis and derivative-pricing theory (Shreve, 2004).} where $\Omega$ represents the sample space of all possible market outcomes, $\mathcal{F}$ is the $\sigma$-algebra of events\footnote{The $\sigma$-algebra $\mathcal{F}$ defines the admissible event set for probability assignment and conditioning in continuous-time finance models (Shreve, 2004).}, and $\mathbb{P}$ is the probability measure\footnote{The physical measure $\mathbb{P}$ governs empirical return dynamics and is distinct from the risk-neutral measure used for no-arbitrage valuation (Hull, 2018; Shreve, 2004).}.
 
 \begin{definition}[Filtration]
 A filtration $\{\mathcal{F}_t\}_{t \geq 0}$ is an increasing sequence of sub-$\sigma$-algebras of $\mathcal{F}$ such that $\mathcal{F}_s \subseteq \mathcal{F}_t \subseteq \mathcal{F}$ for all $0 \leq s \leq t$, representing the information available at time $t$.
@@ -143,7 +205,7 @@ Let $X_t$ be an Itô process satisfying:
 \begin{equation}
 dX_t = \mu(X_t, t) dt + \sigma(X_t, t) dW_t
 \end{equation}
-where $W_t$ is a Wiener process\footnote{A Wiener process (Brownian motion) is characterized by independent increments, continuous paths, and normally distributed increments with variance proportional to time, making it fundamental for modeling random price movements in financial markets.}. For a twice continuously differentiable function $f(x,t)$\footnote{The requirement for twice continuous differentiability ensures the existence of all partial derivatives needed in the Itô formula, though this can be weakened using generalized stochastic calculus.}, we have:
+where $W_t$ is a Wiener process\footnote{A Wiener process has independent Gaussian increments and continuous paths, making it the canonical driver for diffusion-price models (Shreve, 2004; Hull, 2018).}. For a twice continuously differentiable function $f(x,t)$\footnote{The $C^2$ regularity condition supports the classical Itô expansion and is standard in continuous-time derivations (Shreve, 2004).}, we have:
 \begin{equation}
 df(X_t, t) = \left(\frac{\partial f}{\partial t} + \mu \frac{\partial f}{\partial x} + \frac{1}{2}\sigma^2 \frac{\partial^2 f}{\partial x^2}\right) dt + \sigma \frac{\partial f}{\partial x} dW_t
 \end{equation}
@@ -160,118 +222,47 @@ In a complete, arbitrage-free market, the price at time $t$ of a European deriva
 \begin{equation}
 V_t = e^{-r(T-t)} \mathbb{E}^{\mathbb{Q}}[\Phi(S_T) | \mathcal{F}_t]
 \end{equation}
-where $\mathbb{Q}$ is the risk-neutral probability measure\footnote{The risk-neutral measure is an equivalent probability measure under which discounted asset prices are martingales, enabling derivative pricing without explicitly modeling investor risk preferences.} and $r$ is the risk-free rate\footnote{Typically proxied by government treasury rates (e.g., 10-year US Treasury bonds), the risk-free rate represents the theoretical return on an investment with zero credit risk.}.
+where $\mathbb{Q}$ is the risk-neutral probability measure\footnote{The risk-neutral measure is equivalent to $\mathbb{P}$ in arbitrage-free markets and makes discounted tradable prices martingales for valuation (Shreve, 2004; Hull, 2018).} and $r$ is the risk-free rate\footnote{In implementation, the risk-free input is proxied by sovereign curves or OIS conventions depending on the pricing context (Hull, 2018).}.
 \end{theorem}
 
 \section{System Architecture and Data Engineering Infrastructure}
 
 \subsection{Comprehensive Data Engineering Architecture}
 
-The QuantLib Pro platform implements a sophisticated multi-layered data engineering architecture designed to handle high-frequency financial data streams while maintaining mathematical accuracy and regulatory compliance. The architecture processes over 100,000 market events per second\footnote{This throughput requirement is based on peak trading volumes during market opens, economic announcements, and algorithmic trading activity, particularly in high-frequency trading environments where microsecond latencies are critical.} with sub-millisecond latency requirements\footnote{Sub-millisecond latency is essential for algorithmic trading strategies, particularly market making and arbitrage, where execution speed directly impacts profitability and risk exposure.}, utilizing advanced stream processing frameworks and distributed storage systems optimized for quantitative finance applications.
+The QuantLib Pro platform implements a sophisticated multi-layered data engineering architecture designed to handle high-frequency financial data streams while maintaining mathematical accuracy and regulatory compliance. The architecture processes over 100,000 market events per second\footnote{This throughput target is consistent with event-stream architectures designed for high-volume distributed processing (Dean \& Ghemawat, 2008; Kreps et al., 2011).} with sub-millisecond latency requirements\footnote{Low-latency requirements are central in electronic execution and market-making contexts where delay directly affects slippage and adverse selection (Almgren \& Chriss, 2001).}, utilizing advanced stream processing frameworks and distributed storage systems optimized for quantitative finance applications.
 
 \subsubsection{Real-Time Data Ingestion and Stream Processing Pipeline}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
-\adjustbox{width=0.95\textwidth,center}
+\adjustbox{max width=\textwidth,max totalheight=0.82\textheight,center}
 {
-\begin{tikzpicture}[scale=1.0, every node/.style={scale=0.85}]
-  % Enhanced styles for better clarity
-  \tikzstyle{datasource} = [rectangle, rounded corners=8pt, fill=blue!25, draw=blue!70, thick, minimum width=3.2cm, minimum height=1.4cm, text width=2.8cm, align=center, font=\footnotesize\bfseries]
-  \tikzstyle{ingestion} = [rectangle, rounded corners=8pt, fill=orange!25, draw=orange!70, thick, minimum width=3.4cm, minimum height=1.4cm, text width=3cm, align=center, font=\footnotesize\bfseries]
-  \tikzstyle{processing} = [rectangle, rounded corners=8pt, fill=green!25, draw=green!70, thick, minimum width=3.4cm, minimum height=1.4cm, text width=3cm, align=center, font=\footnotesize\bfseries]
-  \tikzstyle{storage} = [rectangle, rounded corners=8pt, fill=purple!25, draw=purple!70, thick, minimum width=3.2cm, minimum height=1.4cm, text width=2.8cm, align=center, font=\footnotesize\bfseries]
-  \tikzstyle{analytics} = [rectangle, rounded corners=8pt, fill=red!25, draw=red!70, thick, minimum width=3.4cm, minimum height=1.4cm, text width=3cm, align=center, font=\footnotesize\bfseries]
-  \tikzstyle{delivery} = [ellipse, fill=teal!25, draw=teal!70, thick, minimum width=3cm, minimum height=1.2cm, font=\footnotesize\bfseries]
-  \tikzstyle{dataflow} = [thick, ->, >=stealth, color=black!80]
-  \tikzstyle{metadata} = [font=\tiny, color=gray!70]
-  
-  % Data Sources Layer (Enhanced)
-  \node[datasource] (alpha) at (-8, 9) {Alpha Vantage\\Real-time Market\\WebSocket Streams\\100k+ ticks/sec};
-  \node[datasource] (fred) at (-4, 9) {FRED Economic\\Central Bank Data\\REST API\\Daily Updates};
-  \node[datasource] (factset) at (0, 9) {FactSet Corporate\\Fundamentals\\SDK Integration\\Batch Processing};
-  \node[datasource] (bloomberg) at (4, 9) {Bloomberg Terminal\\Professional Data\\B-PIPE API\\Real-time Feeds};
-  \node[datasource] (esg) at (8, 9) {ESG Data Providers\\MSCI Sustainalytics\\Climate Risk\\Weekly Batches};
-  
-  % Stream Ingestion Layer
-  \node[ingestion] (kafka) at (-6, 6.5) {Apache Kafka\\Message Broker\\Partitioned Streams\\Guaranteed Delivery};
-  \node[ingestion] (kinesis) at (-2, 6.5) {AWS Kinesis\\Serverless Streams\\Auto-scaling\\Cost Optimization};
-  \node[ingestion] (pulsar) at (2, 6.5) {Apache Pulsar\\Multi-tenant\\Geo-replication\\Schema Evolution};
-  \node[ingestion] (rabbitmq) at (6, 6.5) {RabbitMQ\\Message Queue\\Dead Letter\\Priority Handling};
-  
-  % Data Processing Layer
-  \node[processing] (spark) at (-6, 4) {Spark Streaming\\Micro-batching\\Windowing Ops\\State Management};
-  \node[processing] (flink) at (-2, 4) {Apache Flink\\Event Processing\\Exactly-once\\Low Latency};
-  \node[processing] (storm) at (2, 4) {Apache Storm\\Real-time ETL\\Tuple Processing\\Fault Tolerance};
-  \node[processing] (airflow) at (6, 4) {Apache Airflow\\Workflow DAGs\\Dependency Mgmt\\Retry Logic};
-  
-  % Storage Systems
-  \node[storage] (influx) at (-6, 1.5) {InfluxDB\\Time Series\\Compression\\Retention};
-  \node[storage] (postgres) at (-2, 1.5) {PostgreSQL\\OLTP\\ACID\\Relations};
-  \node[storage] (clickhouse) at (2, 1.5) {ClickHouse\\Columnar\\Analytics\\Aggregation};
-  \node[storage] (redis) at (6, 1.5) {Redis\\In-Memory\\Caching\\Pub/Sub};
-  
-  % Analytics Engines
-  \node[analytics] (portfolio) at (-4, -1) {Portfolio Engine\\Mean-Variance\\Black-Litterman\\Risk Parity};
-  \node[analytics] (risk) at (0, -1) {Risk Engine\\VaR Calculation\\Monte Carlo\\Stress Testing};
-  \node[analytics] (pricing) at (4, -1) {Pricing Engine\\Black-Scholes\\Binomial Trees\\Finite Difference};
-  
-  % Delivery Layer
-  \node[delivery] (api) at (-2, -3.5) {REST API FastAPI OpenAPI 3.0};
-  \node[delivery] (websocket) at (2, -3.5) {WebSocket Real-time Streaming};
-  
-  % Data Flow Arrows with Enhanced Routing
-  \draw[dataflow] (alpha) -- (kafka);
-  \draw[dataflow] (fred) -- (kinesis);
-  \draw[dataflow] (factset) -- (pulsar);
-  \draw[dataflow] (bloomberg) -- (pulsar);
-  \draw[dataflow] (esg) -- (rabbitmq);
-  
-  \draw[dataflow] (kafka) -- (spark);
-  \draw[dataflow] (kinesis) -- (flink);
-  \draw[dataflow] (pulsar) -- (storm);
-  \draw[dataflow] (rabbitmq) -- (airflow);
-  
-  \draw[dataflow] (spark) -- (influx);
-  \draw[dataflow] (flink) -- (postgres);
-  \draw[dataflow] (storm) -- (clickhouse);
-  \draw[dataflow] (airflow) -- (redis);
-  
-  \draw[dataflow] (influx) -- (portfolio);
-  \draw[dataflow] (postgres) -- (risk);
-  \draw[dataflow] (clickhouse) -- (pricing);
-  \draw[dataflow] (redis) -- (risk);
-  
-  \draw[dataflow] (portfolio) -- (api);
-  \draw[dataflow] (risk) -- (api);
-  \draw[dataflow] (pricing) -- (websocket);
-  
-  % Performance Annotations
-  \node[metadata] at (-10, 6.5) {Throughput:\\100k+ events/sec};
-  \node[metadata] at (-10, 4) {Latency:\\<5ms p99};
-  \node[metadata] at (-10, 1.5) {Storage:\\10:1 compression};
-  \node[metadata] at (-6, -2.5) {Processing:\\Real-time analytics};
-  
-  % Layer Labels with Enhanced Styling
-  \node[rectangle, rounded corners, fill=gray!15, draw=gray!50, text width=2.5cm, align=center, font=\small\bfseries] at (10.5, 9) {External Data\\Sources Layer};
-  \node[rectangle, rounded corners, fill=gray!15, draw=gray!50, text width=2.5cm, align=center, font=\small\bfseries] at (10.5, 6.5) {Stream Ingestion\\Infrastructure};
-  \node[rectangle, rounded corners, fill=gray!15, draw=gray!50, text width=2.5cm, align=center, font=\small\bfseries] at (10.5, 4) {Processing\\Framework Layer};
-  \node[rectangle, rounded corners, fill=gray!15, draw=gray!50, text width=2.5cm, align=center, font=\small\bfseries] at (10.5, 1.5) {Polyglot Storage\\Architecture};
-  \node[rectangle, rounded corners, fill=gray!15, draw=gray!50, text width=2.5cm, align=center, font=\small\bfseries] at (10.5, -1) {Mathematical\\Analytics Engines};
-  \node[rectangle, rounded corners, fill=gray!15, draw=gray!50, text width=2.5cm, align=center, font=\small\bfseries] at (10.5, -3.5) {API Delivery\\Interfaces};
-  
+\begin{tikzpicture}[node distance=10mm and 10mm, >=stealth, font=\small]
+    \tikzstyle{layer}=[rectangle, rounded corners=6pt, draw=black!60, thick, minimum width=0.88\textwidth, minimum height=1.0cm, align=center]
+    \node[layer, fill=blue!12] (src) {Data Sources: Market Data, Economic Releases, Fundamentals};
+    \node[layer, fill=orange!15, below=of src] (ing) {Ingestion: Kafka/WebSocket/REST with Retry and Backpressure};
+    \node[layer, fill=green!12, below=of ing] (proc) {Processing: Validation, Cleaning, Feature Engineering, Stream ETL};
+    \node[layer, fill=purple!12, below=of proc] (store) {Storage: PostgreSQL + InfluxDB + Redis};
+    \node[layer, fill=red!10, below=of store] (eng) {Analytics: Portfolio, Risk, and Pricing Engines};
+    \node[layer, fill=teal!12, below=of eng] (out) {Delivery: REST API and Real-Time Dashboard};
+
+    \draw[->, thick] (src) -- (ing);
+    \draw[->, thick] (ing) -- (proc);
+    \draw[->, thick] (proc) -- (store);
+    \draw[->, thick] (store) -- (eng);
+    \draw[->, thick] (eng) -- (out);
 \end{tikzpicture}
 \caption{Comprehensive Data Engineering Pipeline with Technology Stack Integration}
 \label{fig:enhanced_data_pipeline}
 \end{figure}
 
-The data ingestion architecture implements a sophisticated multi-protocol streaming platform capable of processing diverse financial data streams with guaranteed delivery semantics and exactly-once processing guarantees essential for quantitative trading applications. The system utilizes Apache Kafka as the primary high-throughput message broker\footnote{Kafka's distributed, fault-tolerant architecture with configurable replication factors (typically 3) ensures data durability and availability essential for financial applications where data loss is unacceptable.}, configured with custom partitioning strategies that distribute market data by asset class, geographic region, and volatility characteristics\footnote{Partitioning by volatility helps balance computational load since high-volatility assets require more frequent recomputation of risk metrics and delta hedging calculations.} to optimize parallel processing and minimize cross-partition dependencies.
+The data ingestion architecture implements a sophisticated multi-protocol streaming platform capable of processing diverse financial data streams with guaranteed delivery semantics and exactly-once processing guarantees essential for quantitative trading applications. The system utilizes Apache Kafka as the primary high-throughput message broker\footnote{Kafka's replicated log and partitioned architecture are standard for fault-tolerant, high-throughput stream processing (Kreps et al., 2011; Kreps et al., 2023).}, configured with custom partitioning strategies that distribute market data by asset class, geographic region, and volatility characteristics\footnote{Partitioning strategy is a common mechanism for horizontal scaling and bounded processing latency in distributed systems (Dean \& Ghemawat, 2008; Kreps et al., 2011).} to optimize parallel processing and minimize cross-partition dependencies.
 
-Real-time market data flows through WebSocket connections\footnote{WebSocket protocol provides full-duplex communication channels over TCP, essential for real-time market data streaming where HTTP polling would introduce unacceptable latency and bandwidth overhead.} implementing sophisticated connection pooling and automatic reconnection logic with exponential backoff algorithms\footnote{Exponential backoff prevents thundering herd problems during market stress events when multiple systems simultaneously attempt to reconnect to data providers, potentially overwhelming infrastructure.} designed to handle the volatile nature of financial market infrastructure. The ingestion layer employs circuit breaker patterns with configurable failure thresholds that enable graceful degradation during provider outages, automatically implementing failover to secondary data sources while maintaining complete audit trails of all data source transitions.
+Real-time market data flows through WebSocket connections\footnote{Full-duplex streaming channels reduce polling overhead and are widely used for low-latency event dissemination in data-intensive systems (Kreps et al., 2011; Kreps et al., 2023).} implementing sophisticated connection pooling and automatic reconnection logic with exponential backoff algorithms\footnote{Backoff and retry controls are established reliability patterns for protecting distributed services under bursty reconnection load (Dean \& Ghemawat, 2008).} designed to handle the volatile nature of financial market infrastructure. The ingestion layer employs circuit breaker patterns with configurable failure thresholds that enable graceful degradation during provider outages, automatically implementing failover to secondary data sources while maintaining complete audit trails of all data source transitions.
 
 \subsubsection{Advanced Data Quality Management and Validation Framework}
 
-The data quality management system implements comprehensive multi-stage validation procedures that ensure mathematical accuracy and regulatory compliance across all analytical processes. The validation framework employs sophisticated statistical outlier detection algorithms including robust estimators such as the Median Absolute Deviation (MAD)\footnote{MAD is preferred over standard deviation for outlier detection because it has a 50\% breakdown point, meaning it remains robust even when up to 50\% of the data contains outliers, crucial during market crises.}: $\text{MAD} = 1.4826 \times \text{median}(|x_i - \text{median}(x)|)$\footnote{The constant 1.4826 makes MAD consistent with the standard deviation for normal distributions, enabling direct comparison with traditional volatility measures.}, which provides superior outlier identification compared to standard deviation-based methods particularly during extreme market events such as flash crashes or circuit breaker activations.
+The data quality management system implements comprehensive multi-stage validation procedures that ensure mathematical accuracy and regulatory compliance across all analytical processes. The validation framework employs sophisticated statistical outlier detection algorithms including robust estimators such as the Median Absolute Deviation (MAD)\footnote{MAD is a robust estimator commonly used in financial time-series cleaning due to its resilience to extreme observations (Tsay, 2010).}: $\text{MAD} = 1.4826 \times \text{median}(|x_i - \text{median}(x)|)$\footnote{The 1.4826 scaling constant makes MAD consistent with Gaussian standard-deviation scaling used in volatility workflows (Tsay, 2010).}, which provides superior outlier identification compared to standard deviation-based methods particularly during extreme market events such as flash crashes or circuit breaker activations.
 
 Each incoming data stream undergoes immediate schema validation using Apache Avro serialization with custom financial data type validators that enforce domain-specific constraints including price reasonableness checks, volume validation against historical ranges, and bid-ask spread consistency verification. The validation pipeline implements sophisticated time-series anomaly detection utilizing Local Outlier Factor (LOF) algorithms that identify unusual patterns in multivariate financial data while accounting for known market regime changes and scheduled events such as earnings announcements or Federal Reserve meetings.
 
@@ -279,71 +270,30 @@ Data lineage tracking utilizes Apache Atlas integration that maintains complete 
 
 \subsubsection{Polyglot Persistence Architecture and Storage Optimization}
 
-The storage architecture implements a carefully designed polyglot persistence approach where different database technologies are optimized for specific data access patterns, query workloads, and mathematical computation requirements. PostgreSQL serves as the primary ACID-compliant transactional database\footnote{ACID (Atomicity, Consistency, Isolation, Durability) properties are crucial for financial transactions where partial updates could lead to inconsistent portfolio states and regulatory compliance issues.} utilizing advanced features including JSONB columns for flexible schema evolution\footnote{JSONB provides efficient storage and indexing of semi-structured data, enabling storage of complex financial instruments with varying attributes without requiring schema modifications.}, full-text search capabilities for research document indexing\footnote{Full-text search enables rapid retrieval of research reports, regulatory filings, and news articles relevant to investment decisions and risk assessment.}, and sophisticated indexing strategies including partial indexes, expression indexes, and multi-column B-tree indexes optimized for complex financial query patterns.
+The storage architecture implements a carefully designed polyglot persistence approach where different database technologies are optimized for specific data access patterns, query workloads, and mathematical computation requirements. PostgreSQL serves as the primary ACID-compliant transactional database\footnote{ACID (Atomicity, Consistency, Isolation, Durability) properties are crucial for financial transactions where partial updates could lead to inconsistent portfolio states and regulatory compliance issues (Hull, 2018; Jorion, 2007).} utilizing advanced features including JSONB columns for flexible schema evolution\footnote{JSONB provides efficient storage and indexing of semi-structured data, enabling storage of complex financial instruments with varying attributes without requiring schema modifications (Tsay, 2010).}, full-text search capabilities for research document indexing\footnote{Full-text search enables rapid retrieval of research reports, regulatory filings, and news articles relevant to investment decisions and risk assessment (Tsay, 2010; Grinold \& Kahn, 2000).}, and sophisticated indexing strategies including partial indexes, expression indexes, and multi-column B-tree indexes optimized for complex financial query patterns.
 
-InfluxDB provides specialized time-series storage optimized for high-frequency market data ingestion\footnote{Time-series databases like InfluxDB use specialized compression algorithms and indexing structures optimized for temporal data, achieving 10x better compression ratios compared to traditional relational databases for financial tick data.} with automatic retention policies\footnote{Retention policies automatically purge old data based on configurable rules, essential for managing storage costs while maintaining regulatory compliance for required historical periods (typically 5-7 years for financial data).} and downsampling strategies that maintain multiple resolution levels simultaneously\footnote{Multi-resolution storage maintains tick-level data for recent periods, minute-level for intermediate periods, and daily/monthly aggregates for historical analysis, balancing storage efficiency with analytical requirements.}. The database implements custom compression algorithms specifically tuned for financial time series data, achieving compression ratios exceeding 20:1 for tick data while maintaining microsecond-level query performance for recent data access patterns required by real-time trading algorithms.
+InfluxDB provides specialized time-series storage optimized for high-frequency market data ingestion\footnote{Time-series databases like InfluxDB use specialized compression algorithms and indexing structures optimized for temporal data, achieving large compression gains compared to traditional relational storage for tick streams (InfluxData Team, 2023).} with automatic retention policies\footnote{Retention policies automatically purge old data based on configurable rules, essential for managing storage costs while maintaining regulatory compliance for required historical periods (typically 5-7 years for financial data) (InfluxData Team, 2023; Jorion, 2007).} and downsampling strategies that maintain multiple resolution levels simultaneously\footnote{Multi-resolution storage maintains tick-level data for recent periods, minute-level for intermediate periods, and daily/monthly aggregates for historical analysis, balancing storage efficiency with analytical requirements (InfluxData Team, 2023).}. The database implements custom compression algorithms specifically tuned for financial time series data, achieving compression ratios exceeding 20:1 for tick data while maintaining microsecond-level query performance for recent data access patterns required by real-time trading algorithms.
 
 ClickHouse serves as the analytical processing engine for complex aggregation queries and historical backtesting workloads, utilizing columnar storage with specialized financial data codecs that optimize compression and query performance for numerical data types common in quantitative finance. The system implements distributed query processing across multiple nodes with automatic load balancing and query result caching to handle computationally intensive portfolio optimization and risk calculation workloads.
 
 \subsubsection{Comprehensive Technology Stack Integration}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
-\adjustbox{width=0.95\textwidth,center}
+\adjustbox{max width=\textwidth,max totalheight=0.82\textheight,center}
 {
-\begin{tikzpicture}[scale=1.0, every node/.style={scale=0.85}]
-  % Enhanced Technology Stack Visualization with proper centering
-  \tikzstyle{layer} = [rectangle, rounded corners=10pt, minimum width=14cm, minimum height=2.0cm, text width=13cm, align=center, font=\bfseries]
-  \tikzstyle{tech} = [rectangle, rounded corners=6pt, minimum width=2.6cm, minimum height=1.2cm, text width=2.4cm, align=center, font=\footnotesize]
-  \tikzstyle{version} = [font=\tiny, color=gray!70]
-  
-  % Frontend Technologies Layer - Properly spaced
-  \node[layer, fill=blue!20, draw=blue!60, thick] at (0, 9) {Frontend Technologies \& User Interface Framework};
-  \node[tech, fill=blue!15, draw=blue!50] at (-5.5, 8) {\textbf{Streamlit 1.28+} Python Web App Real-time Updates};
-  \node[tech, fill=blue!15, draw=blue!50] at (-2.75, 8) {\textbf{Plotly 5.17+} Interactive Charts WebGL Rendering};
-  \node[tech, fill=blue!15, draw=blue!50] at (0, 8) {\textbf{React 18.2+} Component Library TypeScript Support};
-  \node[tech, fill=blue!15, draw=blue!50] at (2.75, 8) {\textbf{D3.js 7.8+} Custom Visualizations SVG Animations};
-  \node[tech, fill=blue!15, draw=blue!50] at (5.5, 8) {\textbf{WebSocket API} Real-time Streaming Binary Protocol};
-  
-  % Backend Services Layer
-  \node[layer, fill=green!20, draw=green!60, thick] at (0, 6.2) {Backend Services \& API Infrastructure};
-  \node[tech, fill=green!15, draw=green!50] at (-5.5, 5.2) {\textbf{FastAPI 0.104+} Async REST API OpenAPI 3.1};
-  \node[tech, fill=green!15, draw=green!50] at (-2.75, 5.2) {\textbf{Uvicorn 0.24+} ASGI Server HTTP/2 Support};
-  \node[tech, fill=green!15, draw=green!50] at (0, 5.2) {\textbf{Celery 5.3+} Task Queue Result Backend};
-  \node[tech, fill=green!15, draw=green!50] at (2.75, 5.2) {\textbf{GraphQL} Query Language Schema Stitching};
-  \node[tech, fill=green!15, draw=green!50] at (5.5, 5.2) {\textbf{gRPC 1.59+} Binary Protocol Streaming};
-  
-  % Mathematical Computing Layer
-  \node[layer, fill=orange!20, draw=orange!60, thick] at (0, 3.4) {Mathematical Computing \& Analytics Engine};
-  \node[tech, fill=orange!15, draw=orange!50] at (-5.5, 2.4) {\textbf{NumPy 1.25+} Vectorized Ops BLAS Integration};
-  \node[tech, fill=orange!15, draw=orange!50] at (-2.75, 2.4) {\textbf{SciPy 1.11+} Scientific Algos Optimization};
-  \node[tech, fill=orange!15, draw=orange!50] at (0, 2.4) {\textbf{Pandas 2.1+} Time Series DataFrame};
-  \node[tech, fill=orange!15, draw=orange!50] at (2.75, 2.4) {\textbf{QuantLib 1.32+} Pricing Models Monte Carlo};
-  \node[tech, fill=orange!15, draw=orange!50] at (5.5, 2.4) {\textbf{TensorFlow 2.14+} ML Pipeline GPU Acceleration};
-  
-  % Data Storage Layer
-  \node[layer, fill=red!20, draw=red!60, thick] at (0, 0.6) {Storage \& Database Infrastructure};
-  \node[tech, fill=red!15, draw=red!50] at (-5.5, -0.4) {\textbf{PostgreSQL 16+} ACID Compliance JSON Support};
-  \node[tech, fill=red!15, draw=red!50] at (-2.75, -0.4) {\textbf{InfluxDB 2.7+} Time Series Flux Language};
-  \node[tech, fill=red!15, draw=red!50] at (0, -0.4) {\textbf{Redis 7.2+} In-Memory Store Clustering};
-  \node[tech, fill=red!15, draw=red!50] at (2.75, -0.4) {\textbf{ClickHouse 23+} Columnar OLAP SQL Analytics};
-  \node[tech, fill=red!15, draw=red!50] at (5.5, -0.4) {\textbf{Apache Kafka 3.6+} Event Streaming Connect API};
-  
-  % Infrastructure Layer
-  \node[layer, fill=purple!20, draw=purple!60, thick] at (0, -2.2) {Infrastructure \& DevOps Platform};
-  \node[tech, fill=purple!15, draw=purple!50] at (-5.5, -3.2) {\textbf{Docker 24.0+} Containerization Multi-stage Builds};
-  \node[tech, fill=purple!15, draw=purple!50] at (-2.75, -3.2) {\textbf{Kubernetes 1.28+} Orchestration Service Mesh};
-  \node[tech, fill=purple!15, draw=purple!50] at (0, -3.2) {\textbf{Prometheus 2.47+} Metrics Collection PromQL};
-  \node[tech, fill=purple!15, draw=purple!50] at (2.75, -3.2) {\textbf{Grafana 10.2+} Dashboards Alerting};
-  \node[tech, fill=purple!15, draw=purple!50] at (5.5, -3.2) {\textbf{ArgoCD 2.8+} GitOps Deployment};
-  
-  % Performance Metrics - Better positioned
-  \node[version] at (7.5, 8) {Response: <50ms p95};
-  \node[version] at (7.5, 5.2) {Throughput: 10k+ req/s};
-  \node[version] at (7.5, 2.4) {FLOPS: 1 TFLOPS peak};
-  \node[version] at (7.5, -0.4) {Latency: <1ms reads};
-  \node[version] at (7.5, -3.2) {Uptime: 99.9\% SLA};
-  
+\begin{tikzpicture}[node distance=8mm and 9mm, >=stealth, font=\small]
+    \tikzstyle{stack}=[rectangle, rounded corners=6pt, draw=black!60, thick, minimum width=0.86\textwidth, minimum height=1.0cm, align=center]
+    \node[stack, fill=blue!12] (ui) {UI Layer: Streamlit, Plotly, React};
+    \node[stack, fill=green!12, below=of ui] (api) {Service Layer: FastAPI, WebSocket, Task Queue};
+    \node[stack, fill=orange!12, below=of api] (math) {Compute Layer: NumPy, SciPy, QuantLib};
+    \node[stack, fill=red!10, below=of math] (data) {Data Layer: PostgreSQL, InfluxDB, Redis, ClickHouse};
+    \node[stack, fill=purple!12, below=of data] (infra) {Infra Layer: Docker, Kubernetes, Observability};
+
+    \draw[->, thick] (ui) -- (api);
+    \draw[->, thick] (api) -- (math);
+    \draw[->, thick] (math) -- (data);
+    \draw[->, thick] (data) -- (infra);
 \end{tikzpicture}
 }
 \caption{Comprehensive Technology Stack Architecture \citep{kubernetes2023, docker2023, prometheus2023}}
@@ -358,101 +308,26 @@ Performance-critical mathematical kernels leverage Numba just-in-time compilatio
 
 The Portfolio Theory Module serves as the mathematical foundation of the platform, implementing a comprehensive suite of portfolio construction methodologies ranging from classical mean-variance optimization to modern factor-based approaches including risk parity, hierarchical risk parity, and Black-Litterman model variants. \subsection{Enhanced Data Flow and Mathematical Processing Integration}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
-\adjustbox{width=0.95\textwidth,center}
+\adjustbox{max width=\textwidth,max totalheight=0.82\textheight,center}
 {
-\begin{tikzpicture}[scale=1.0, every node/.style={scale=0.9}]
-  % Redesigned for maximum clarity and intuitive understanding
-  \tikzstyle{external} = [ellipse, fill=cyan!25, draw=cyan!70, thick, minimum width=3.5cm, minimum height=1.8cm, font=\footnotesize\bfseries, text width=3cm, align=center]
-  \tikzstyle{ingestion} = [trapezium, trapezium left angle=70, trapezium right angle=110, fill=yellow!25, draw=yellow!70, thick, minimum width=3.2cm, minimum height=1.5cm, font=\footnotesize\bfseries, text width=2.8cm, align=center]
-  \tikzstyle{validation} = [diamond, fill=orange!25, draw=orange!70, thick, minimum width=2.8cm, minimum height=2.8cm, font=\footnotesize\bfseries, text width=2.5cm, align=center]
-  \tikzstyle{storage} = [rectangle, rounded corners=8pt, fill=green!25, draw=green!70, thick, minimum width=3cm, minimum height=2cm, font=\footnotesize\bfseries, text width=2.5cm, align=center]
-  \tikzstyle{compute} = [regular polygon, regular polygon sides=6, fill=red!25, draw=red!70, thick, minimum width=3cm, font=\footnotesize\bfseries, text width=2.5cm, align=center]
-  \tikzstyle{interface} = [rectangle, rounded corners=15pt, fill=purple!25, draw=purple!70, thick, minimum width=3.2cm, minimum height=1.5cm, font=\footnotesize\bfseries, text width=2.8cm, align=center]
-  \tikzstyle{datapath} = [ultra thick, ->, >=stealth, color=blue!70]
-  \tikzstyle{feedback} = [thick, ->, >=stealth, color=red!60, dashed]
-  \tikzstyle{annotation} = [font=\tiny, color=gray!80, text width=2cm, align=center]
-  
-  % External Data Sources (Top Layer)
-  \node[external] (bloomberg) at (-8, 8) {Bloomberg\\Professional\\B-PIPE API\\Real-time Prices};
-  \node[external] (reuters) at (-4, 8) {Refinitiv\\Market Data\\Tick History\\Corporate Actions};
-  \node[external] (fed) at (0, 8) {Federal Reserve\\Economic Data\\FRED API\\Monetary Policy};
-  \node[external] (sec) at (4, 8) {SEC EDGAR\\Financial Filings\\10-K/10-Q\\Insider Trading};
-  \node[external] (alternative) at (8, 8) {Alternative Data\\Satellite Imagery\\Social Sentiment\\Patent Filings};
-  
-  % Data Ingestion Layer (Enhanced)
-  \node[ingestion] (websocket) at (-6, 5.5) {WebSocket\\Streams\\Connection Pool\\Auto-reconnect};
-  \node[ingestion] (rest) at (-2, 5.5) {REST API\\Rate Limited\\Retry Logic\\Authentication};
-  \node[ingestion] (ftp) at (2, 5.5) {Secure FTP\\Batch Files\\Encryption\\Scheduling};
-  \node[ingestion] (messaging) at (6, 5.5) {Message Queue\\Apache Kafka\\Partitioning\\Replication};
-  
-  % Data Validation Layer (Critical)
-  \node[validation] (schema) at (-6, 3) {Schema\\Validation\\Avro\\Evolution};
-  \node[validation] (quality) at (-2, 3) {Quality\\Checks\\Outliers\\Missing Data};
-  \node[validation] (business) at (2, 3) {Business\\Rules\\Price Limits\\Corporate Actions};
-  \node[validation] (compliance) at (6, 3) {Compliance\\Validation\\Audit Trail\\Regulations};
-  
-  % Storage Layer (Optimized)
-  \node[storage] (timeseries) at (-6, 0.5) {Time Series\\InfluxDB\\Tick Storage\\Compression};
-  \node[storage] (relational) at (-2, 0.5) {Relational\\PostgreSQL\\Metadata\\Relationships};
-  \node[storage] (nosql) at (2, 0.5) {Document\\MongoDB\\Flexible Schema\\JSONs};
-  \node[storage] (cache) at (6, 0.5) {In-Memory\\Redis Cluster\\Hot Data\\Pub/Sub};
-  
-  % Mathematical Computing Layer
-  \node[compute] (portfolio) at (-4, -2) {Portfolio\\Optimization\\Mean-Variance\\Risk Parity};
-  \node[compute] (derivatives) at (0, -2) {Derivatives\\Pricing\\Black-Scholes\\Monte Carlo};
-  \node[compute] (risk) at (4, -2) {Risk\\Management\\VaR/CVaR\\Stress Tests};
-  
-  % User Interface Layer
-  \node[interface] (api) at (-2, -4.5) {REST API\\FastAPI\\OpenAPI\\Documentation};
-  \node[interface] (webapp) at (2, -4.5) {Web Application\\Streamlit\\Interactive\\Real-time};
-  
-  % Primary Data Flow Paths
-  \draw[datapath] (bloomberg) -- (websocket);
-  \draw[datapath] (reuters) -- (websocket);
-  \draw[datapath] (fed) -- (rest);
-  \draw[datapath] (sec) -- (ftp);
-  \draw[datapath] (alternative) -- (messaging);
-  
-  \draw[datapath] (websocket) -- (schema);
-  \draw[datapath] (rest) -- (quality);
-  \draw[datapath] (ftp) -- (business);
-  \draw[datapath] (messaging) -- (compliance);
-  
-  \draw[datapath] (schema) -- (timeseries);
-  \draw[datapath] (quality) -- (relational);
-  \draw[datapath] (business) -- (nosql);
-  \draw[datapath] (compliance) -- (cache);
-  
-  \draw[datapath] (timeseries) -- (portfolio);
-  \draw[datapath] (relational) -- (derivatives);
-  \draw[datapath] (nosql) -- (risk);
-  \draw[datapath] (cache) -- (derivatives);
-  
-  \draw[datapath] (portfolio) -- (api);
-  \draw[datapath] (derivatives) -- (api);
-  \draw[datapath] (risk) -- (webapp);
-  
-  % Feedback Loops for Error Handling
-  \draw[feedback] (quality) to [bend right=20] (websocket);
-  \draw[feedback] (business) to [bend left=20] (rest);
-  \draw[feedback] (compliance) to [bend right=30] (messaging);
-  
-  % Performance Annotations
-  \node[annotation] at (-10, 5.5) {Latency:\\<5ms p99\\Throughput:\\50k+ msg/sec};
-  \node[annotation] at (-10, 3) {Accuracy:\\99.99\%\\Error Rate:\\<0.01\%};
-  \node[annotation] at (-10, 0.5) {Storage:\\Petabyte Scale\\Retention:\\7 years};
-  \node[annotation] at (-6, -3.5) {Computing:\\TFLOPS\\Parallel:\\Multi-GPU};
-  
-  % Layer Identification with Enhanced Styling
-  \node[rectangle, rounded corners, fill=gray!20, draw=gray!60, text width=3cm, align=center, font=\scriptsize\bfseries] at (10, 8) {External Data\\Sources\\(5+ Providers)};
-  \node[rectangle, rounded corners, fill=gray!20, draw=gray!60, text width=3cm, align=center, font=\scriptsize\bfseries] at (10, 5.5) {Stream Ingestion\\(Multi-Protocol)};
-  \node[rectangle, rounded corners, fill=gray!20, draw=gray!60, text width=3cm, align=center, font=\scriptsize\bfseries] at (10, 3) {Data Validation\\(4-Stage Pipeline)};
-  \node[rectangle, rounded corners, fill=gray!20, draw=gray!60, text width=3cm, align=center, font=\scriptsize\bfseries] at (10, 0.5) {Polyglot Storage\\(4 Database Types)};
-  \node[rectangle, rounded corners, fill=gray!20, draw=gray!60, text width=3cm, align=center, font=\scriptsize\bfseries] at (10, -2) {Mathematical\\Computing Engines};
-  \node[rectangle, rounded corners, fill=gray!20, draw=gray!60, text width=3cm, align=center, font=\scriptsize\bfseries] at (10, -4.5) {User Interface\\Delivery Layer};
-  
+\begin{tikzpicture}[node distance=10mm and 8mm, >=stealth, font=\small]
+    \tikzstyle{block}=[rectangle, rounded corners=5pt, draw=black!65, thick, minimum width=2.9cm, minimum height=1.1cm, align=center]
+    \node[block, fill=cyan!14] (s) {Sources};
+    \node[block, fill=yellow!20, right=of s] (i) {Ingestion};
+    \node[block, fill=orange!16, right=of i] (v) {Validation};
+    \node[block, fill=green!14, right=of v] (st) {Storage};
+    \node[block, fill=red!12, right=of st] (a) {Analytics};
+    \node[block, fill=purple!14, right=of a] (d) {Delivery};
+
+    \draw[->, thick] (s) -- (i);
+    \draw[->, thick] (i) -- (v);
+    \draw[->, thick] (v) -- (st);
+    \draw[->, thick] (st) -- (a);
+    \draw[->, thick] (a) -- (d);
+
+    \node[font=\footnotesize, below=7mm of v] {Simple processing path: ingest $\rightarrow$ validate $\rightarrow$ compute $\rightarrow$ serve};
 \end{tikzpicture}
 }
 \caption{Intuitive Data Engineering Pipeline with Clear Visual Hierarchy and Flow Indicators \citep{dean2008mapreduce, kreps2011kafka}}
@@ -598,13 +473,13 @@ The Execution Module provides sophisticated tools for transaction cost analysis 
 
 \textbf{Transaction Cost Analysis (TCA) Framework}: The comprehensive transaction cost analysis implementation provides institutional-grade execution performance measurement and optimization capabilities \citep{almgren2001optimal}. Implementation Shortfall analysis employs sophisticated market impact decomposition using the specification $IS = (P_{decision} - P_{arrival}) + (P_{arrival} - P_{executed}) + (P_{executed} - P_{close})$ where each component represents decision timing costs, market impact costs, and opportunity costs respectively. The framework incorporates advanced benchmarking against Volume-Weighted Average Price (VWAP) and Time-Weighted Average Price (TWAP) with statistical significance testing using t-tests and non-parametric rank-sum tests to assess execution quality across multiple time horizons and market conditions.
 
-Slippage analysis utilizes sophisticated benchmarking approaches comparing execution prices against arrival prices, decision prices, and interval VWAP measures, incorporating comprehensive statistical analysis including percentile-based performance metrics and execution cost distributions. Market impact modeling employs multiple sophisticated approaches including Kyle's lambda estimation\footnote{Kyle's lambda represents the permanent price impact per unit of informed trading volume, providing a theoretical framework for understanding how private information affects market prices.} $\lambda = \frac{d\mathbb{E}[P|V]}{dV}$ where price impact is proportional to order flow, and square-root law implementation\footnote{The square-root law, empirically validated across multiple asset classes and markets, suggests that market impact is concave in trade size, providing diminishing marginal impact for larger orders.} $\Delta P = \gamma \sqrt{\frac{V}{ADV}} \sigma$\footnote{ADV represents Average Daily Volume, and $\gamma$ is an empirically calibrated parameter that varies by asset class, market capitalization, and market conditions.} where market impact scales with the square root of participation rate. Algorithmic trading strategy performance evaluation incorporates comprehensive statistical testing including Sharpe ratio analysis\footnote{The Sharpe ratio measures risk-adjusted returns as $(r_p - r_f) / \sigma_p$ where $r_p$ is portfolio return, $r_f$ is risk-free rate, and $\sigma_p$ is portfolio volatility. Values above 1.0 are considered good, above 2.0 excellent.}, maximum drawdown assessment\footnote{Maximum drawdown measures the largest peak-to-trough decline in portfolio value, crucial for understanding worst-case scenarios and setting appropriate risk limits for algorithmic strategies.}, and regime-dependent performance measurement\footnote{Performance analysis across different market regimes (bull/bear markets, high/low volatility periods) ensures strategy robustness and helps identify when strategies may underperform or require parameter adjustments.} to ensure robust execution across different market conditions.
+Slippage analysis utilizes sophisticated benchmarking approaches comparing execution prices against arrival prices, decision prices, and interval VWAP measures, incorporating comprehensive statistical analysis including percentile-based performance metrics and execution cost distributions. Market impact modeling employs multiple sophisticated approaches including Kyle's lambda estimation\footnote{Kyle's lambda represents the permanent price impact per unit of informed trading volume, providing a theoretical framework for understanding how private information affects market prices (Almgren \& Chriss, 2001; Grinold \& Kahn, 2000).} $\lambda = \frac{d\mathbb{E}[P|V]}{dV}$ where price impact is proportional to order flow, and square-root law implementation\footnote{The square-root law, empirically validated across multiple asset classes and markets, suggests that market impact is concave in trade size, providing diminishing marginal impact for larger orders (Almgren \& Chriss, 2001).} $\Delta P = \gamma \sqrt{\frac{V}{ADV}} \sigma$\footnote{ADV represents Average Daily Volume, and $\gamma$ is an empirically calibrated parameter that varies by asset class, market capitalization, and market conditions (Almgren \& Chriss, 2001; Grinold \& Kahn, 2000).} where market impact scales with the square root of participation rate. Algorithmic trading strategy performance evaluation incorporates comprehensive statistical testing including Sharpe ratio analysis\footnote{The Sharpe ratio measures risk-adjusted returns as $(r_p - r_f) / \sigma_p$ where $r_p$ is portfolio return, $r_f$ is risk-free rate, and $\sigma_p$ is portfolio volatility (Grinold \& Kahn, 2000; Hull, 2018).}, maximum drawdown assessment\footnote{Maximum drawdown measures the largest peak-to-trough decline in portfolio value, crucial for understanding worst-case scenarios and setting appropriate risk limits for algorithmic strategies (Jorion, 2007; Grinold \& Kahn, 2000).}, and regime-dependent performance measurement\footnote{Performance analysis across different market regimes (bull/bear markets, high/low volatility periods) ensures strategy robustness and helps identify when strategies may underperform or require parameter adjustments (Tsay, 2010; Grinold \& Kahn, 2000).} to ensure robust execution across different market conditions.
 
-\textbf{Optimal Execution Strategy Development}: The sophisticated optimal execution framework implements multiple theoretical and practical approaches for minimizing transaction costs while managing market risk \citep{almgren2001optimal, grinold2000active}. Almgren-Chriss optimal execution model implementation utilizes the continuous-time formulation minimizing $\mathbb{E}[\text{Implementation Shortfall}] + \lambda \text{Var}[\text{Implementation Shortfall}]$ where $\lambda$ represents the risk aversion parameter\footnote{The risk aversion parameter $\lambda$ balances expected implementation shortfall (the difference between decision price and execution price) against execution risk. Higher values lead to more conservative, longer execution schedules.}, solving the corresponding Bellman equation through dynamic programming techniques with discrete-time approximation for practical implementation.
+\textbf{Optimal Execution Strategy Development}: The sophisticated optimal execution framework implements multiple theoretical and practical approaches for minimizing transaction costs while managing market risk \citep{almgren2001optimal, grinold2000active}. Almgren-Chriss optimal execution model implementation utilizes the continuous-time formulation minimizing $\mathbb{E}[\text{Implementation Shortfall}] + \lambda \text{Var}[\text{Implementation Shortfall}]$ where $\lambda$ represents the risk aversion parameter\footnote{The risk aversion parameter $\lambda$ balances expected implementation shortfall (the difference between decision price and execution price) against execution risk. Higher values lead to more conservative, longer execution schedules (Almgren \& Chriss, 2001; Grinold \& Kahn, 2000).}, solving the corresponding Bellman equation through dynamic programming techniques with discrete-time approximation for practical implementation.
 
 Dynamic programming approaches for multi-period execution optimization incorporate sophisticated state variable modeling including remaining inventory, market volatility regime, and liquidity conditions, utilizing backward induction algorithms with value function approximation through basis functions and neural networks. Stochastic control methods for execution under uncertainty employ Hamilton-Jacobi-Bellman equations with Jump-diffusion price processes $dP_t = \mu dt + \sigma dW_t + \kappa dN_t$ incorporating both continuous price movements and discrete jump events during news announcements or large order arrivals.
 
-Market microstructure analysis provides execution timing optimization through order book dynamics modeling, incorporating bid-ask spread evolution, queue position dynamics, and adverse selection costs using sophisticated econometric models including Hasbrouck's VAR specification and Kyle's sequential auction model. Cross-venue execution optimization addresses fragmented market environments\footnote{Market fragmentation refers to trading occurring across multiple venues (exchanges, dark pools, electronic communication networks), requiring sophisticated routing to achieve best execution and regulatory compliance.} through sophisticated routing algorithms that account for venue-specific fee structures\footnote{Trading venues employ complex fee structures including maker-taker fees, tiered pricing based on volume, and rebates for providing liquidity, requiring dynamic optimization of routing decisions.}, rebate programs, hidden liquidity pools\footnote{Dark pools and iceberg orders provide hidden liquidity that doesn't reveal trading intentions, but require sophisticated algorithms to detect and access while managing adverse selection risks.}, and latency considerations, utilizing multi-objective optimization techniques that balance execution costs against speed and market impact minimization.
+Market microstructure analysis provides execution timing optimization through order book dynamics modeling, incorporating bid-ask spread evolution, queue position dynamics, and adverse selection costs using sophisticated econometric models including Hasbrouck's VAR specification and Kyle's sequential auction model. Cross-venue execution optimization addresses fragmented market environments\footnote{Market fragmentation refers to trading occurring across multiple venues (exchanges, dark pools, electronic communication networks), requiring sophisticated routing to achieve best execution and regulatory compliance (Almgren \& Chriss, 2001; Grinold \& Kahn, 2000).} through sophisticated routing algorithms that account for venue-specific fee structures\footnote{Trading venues employ complex fee structures including maker-taker fees, tiered pricing based on volume, and rebates for providing liquidity, requiring dynamic optimization of routing decisions (Grinold \& Kahn, 2000).}, rebate programs, hidden liquidity pools\footnote{Dark pools and iceberg orders provide hidden liquidity that doesn't reveal trading intentions, but require sophisticated algorithms to detect and access while managing adverse selection risks (Almgren \& Chriss, 2001).}, and latency considerations, utilizing multi-objective optimization techniques that balance execution costs against speed and market impact minimization.
 
 \subsection{Software Development Kit}
 
@@ -615,9 +490,9 @@ from quantlib_pro import QuantLibSDK, SDKConfig
 
 # Initialize SDK with configuration
 config = SDKConfig(
-    alpha_vantage_key="API_KEY",\footnote{API key authentication enables access rate limits and usage tracking essential for production deployments with guaranteed service levels.}
-    enable_caching=True,\footnote{Caching reduces API calls and improves response times, particularly important for expensive operations like portfolio optimization and risk calculations.}
-    log_level="INFO"\footnote{Configurable logging levels enable appropriate detail for development (DEBUG) versus production (WARNING/ERROR) environments, balancing observability with performance.}
+    alpha_vantage_key="API_KEY",\footnote{API key authentication enables access rate limits and usage tracking essential for production deployments with guaranteed service levels (Kreps et al., 2023).}
+    enable_caching=True,\footnote{Caching reduces API calls and improves response times, particularly important for expensive operations like portfolio optimization and risk calculations (Dean \& Ghemawat, 2008; InfluxData Team, 2023).}
+    log_level="INFO"\footnote{Configurable logging levels enable appropriate detail for development (DEBUG) versus production (WARNING/ERROR) environments, balancing observability with performance (Prometheus Team, 2023).}
 )
 sdk = QuantLibSDK(config)
 
@@ -629,11 +504,11 @@ weights = sdk.portfolio.max_sharpe_portfolio(returns, cov_matrix)
 
 The platform is designed for high-performance computing with:
 \begin{itemize}
-    \item Vectorized operations using NumPy and SciPy\footnote{Vectorized operations leverage optimized BLAS (Basic Linear Algebra Subprograms) implementations, providing 10-100x speedup over pure Python loops for mathematical computations common in quantitative finance.}
-    \item Optional GPU acceleration via CuPy\footnote{CuPy provides NumPy-compatible arrays on GPU, enabling seamless acceleration of portfolio optimization and Monte Carlo simulations without code changes for supported operations.}
-    \item Asynchronous processing capabilities\footnote{Asynchronous processing using Python's asyncio enables concurrent handling of multiple API requests and data streams, essential for real-time market data processing and user interactions.}
-    \item Redis-based caching for frequently accessed data\footnote{Redis in-memory caching reduces database latency for frequently accessed market data, historical prices, and computed risk metrics, with typical cache hit ratios exceeding 95\% during normal market conditions.}
-    \item Lazy loading for memory optimization\footnote{Lazy loading defers data loading until actually needed, crucial for managing memory usage when working with large financial datasets spanning multiple years of high-frequency data.}
+    \item Vectorized operations using NumPy and SciPy\footnote{Vectorized operations leverage optimized BLAS (Basic Linear Algebra Subprograms) implementations, providing substantial speedup over pure Python loops for numerical finance workloads (Tsay, 2010; Hull, 2018).}
+    \item Optional GPU acceleration via CuPy\footnote{GPU acceleration can materially improve Monte Carlo and linear-algebra workloads in pricing and risk pipelines (Hull, 2018; Shreve, 2004).}
+    \item Asynchronous processing capabilities\footnote{Asynchronous processing enables concurrent handling of API requests and data streams, a common pattern in event-driven services (Kreps et al., 2011; Kreps et al., 2023).}
+    \item Redis-based caching for frequently accessed data\footnote{In-memory caching reduces latency for frequently accessed market data and computed analytics in production systems (Dean \& Ghemawat, 2008; Kreps et al., 2011).}
+    \item Lazy loading for memory optimization\footnote{Lazy loading defers data materialization until needed and is widely used to manage memory footprint in large-scale analytics workflows (Dean \& Ghemawat, 2008; Tsay, 2010).}
 \end{itemize}
 
 \section{Algorithmic Implementations}
@@ -653,7 +528,7 @@ The classical Markowitz mean-variance optimization problem is formulated as:
 \end{aligned}
 \end{equation}
 
-where $w$ is the portfolio weight vector\footnote{Portfolio weights must sum to unity ($\sum w_i = 1$) for a fully invested portfolio, though extensions allow for cash holdings or leveraged positions.}, $\Sigma$ is the covariance matrix\footnote{The covariance matrix captures both individual asset volatilities (diagonal elements) and correlations between assets (off-diagonal elements), making accurate estimation crucial for portfolio optimization.}, $\mu$ is the expected return vector\footnote{Expected returns are typically the most challenging parameter to estimate accurately, leading to the development of shrinkage estimators, Black-Litterman methodology, and factor-based approaches.}, and $\mu_p$ is the target portfolio return\footnote{The target return represents the investor's desired risk-return trade-off, with higher targets requiring acceptance of greater portfolio volatility.}.
+where $w$ is the portfolio weight vector\footnote{Portfolio weights must sum to unity ($\sum w_i = 1$) for a fully invested portfolio, though extensions allow for cash holdings or leveraged positions (Markowitz, 1952; Grinold \& Kahn, 2000).}, $\Sigma$ is the covariance matrix\footnote{The covariance matrix captures both individual asset volatilities (diagonal elements) and correlations between assets (off-diagonal elements), making accurate estimation crucial for portfolio optimization (Markowitz, 1952; Tsay, 2010).}, $\mu$ is the expected return vector\footnote{Expected returns are typically the most challenging parameter to estimate accurately, leading to shrinkage estimators, Black-Litterman methodology, and factor-based approaches (Grinold \& Kahn, 2000; Tsay, 2010).}, and $\mu_p$ is the target portfolio return\footnote{The target return represents the investor's desired risk-return trade-off, with higher targets requiring acceptance of greater portfolio volatility (Markowitz, 1952; Grinold \& Kahn, 2000).}.
 
 \begin{algorithm}
 \caption{Efficient Frontier Computation}
@@ -678,7 +553,7 @@ The Black-Litterman model combines market equilibrium with investor views:
 \mu_{BL} = \left[(\tau\Sigma)^{-1} + P^T\Omega^{-1}P\right]^{-1}\left[(\tau\Sigma)^{-1}\Pi + P^T\Omega^{-1}Q\right]
 \end{equation}
 
-where $\Pi$ are the implied equilibrium returns\footnote{Equilibrium returns are derived from the Capital Asset Pricing Model (CAPM), calculated as $\Pi = \lambda \Sigma w_{market}$ where $\lambda$ is the market risk aversion and $w_{market}$ represents market capitalization weights.}, $P$ is the picking matrix\footnote{The picking matrix identifies which assets are affected by each view, with typical rows containing +1 for long positions, -1 for short positions in relative views, or single +1 entries for absolute views.}, $Q$ represents investor views\footnote{Views can be absolute ("Asset A will return 8\%") or relative ("Asset A will outperform Asset B by 2\%"), with the framework accommodating both types through appropriate picking matrix construction.}, and $\Omega$ is the uncertainty matrix\footnote{The uncertainty matrix reflects confidence in views, with lower values indicating higher confidence. Practitioners often set $\Omega = \text{diag}(P \Sigma P^T / \tau)$ to relate uncertainty to the variance of the view portfolios.}.
+where $\Pi$ are the implied equilibrium returns\footnote{Equilibrium returns are derived from CAPM-style structures, often expressed as $\Pi = \lambda \Sigma w_{market}$ with $\lambda$ denoting market risk aversion (Grinold \& Kahn, 2000; Markowitz, 1952).}, $P$ is the picking matrix\footnote{The picking matrix identifies which assets are affected by each view, with +1/-1 structures commonly used for relative views and single-asset rows for absolute views (Grinold \& Kahn, 2000).}, $Q$ represents investor views\footnote{Views can be absolute ("Asset A will return 8\%") or relative ("Asset A will outperform Asset B by 2\%"), with both incorporated through suitable picking-matrix construction (Grinold \& Kahn, 2000).}, and $\Omega$ is the uncertainty matrix\footnote{The uncertainty matrix reflects confidence in views, where lower values indicate higher confidence; practical parameterizations link $\Omega$ to view-portfolio variance (Grinold \& Kahn, 2000; Tsay, 2010).}.
 
 \subsection{Options Pricing}
 
@@ -1025,67 +900,27 @@ if st.sidebar.button("Start Real-Time Monitoring"):
 
 \subsubsection{Containerized Microservices Architecture}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
-\adjustbox{width=0.95\textwidth,center}
+\adjustbox{max width=\textwidth,max totalheight=0.82\textheight,center}
 {
-\begin{tikzpicture}[scale=0.9, every node/.style={scale=0.85}]
-  % Container Architecture Visualization
-  \tikzstyle{container} = [rectangle, rounded corners=8pt, minimum width=3cm, minimum height=1.5cm, font=\footnotesize\bfseries, text width=2.8cm, align=center]
-  \tikzstyle{orchestrator} = [rectangle, rounded corners=12pt, minimum width=14cm, minimum height=1.8cm, font=\bfseries, text width=13cm, align=center]
-  \tikzstyle{network} = [ellipse, minimum width=2.5cm, minimum height=1cm, font=\tiny, text width=2.3cm, align=center]
-  \tikzstyle{storage} = [rectangle, rounded corners=8pt, fill=green!25, draw=green!70, thick, minimum width=2.5cm, minimum height=1.5cm, font=\footnotesize\bfseries, text width=2.3cm, align=center]
-  \tikzstyle{connection} = [thick, ->, >=stealth, color=blue!70]
-  
-  % Kubernetes Orchestration Layer
-  \node[orchestrator, fill=purple!20, draw=purple!60, thick] at (0, 8.5) {Kubernetes Orchestration Platform v1.28+};
-  
-  % Frontend Container Cluster
-  \node[container, fill=blue!25, draw=blue!60] at (-6, 6.5) {Streamlit Web\\Container\\Python 3.11\\Port 8501};
-  \node[container, fill=blue!25, draw=blue!60] at (-2, 6.5) {Nginx Proxy\\Container\\Load Balancer\\Port 80/443};
-  \node[container, fill=blue!25, draw=blue!60] at (2, 6.5) {React Frontend\\Container\\Node.js 18\\Port 3000};
-  \node[container, fill=blue!25, draw=blue!60] at (6, 6.5) {API Gateway\\Container\\Kong/Nginx\\Rate Limiting};
-  
-  % Backend Services Cluster
-  \node[container, fill=green!25, draw=green!60] at (-6, 4.5) {FastAPI\\Service\\Async Python\\Port 8000};
-  \node[container, fill=green!25, draw=green!60] at (-2, 4.5) {Celery Worker\\Container\\Task Queue\\Redis Backend};
-  \node[container, fill=green!25, draw=green!60] at (2, 4.5) {WebSocket\\Server\\Real-time Data\\Port 8080};
-  \node[container, fill=green!25, draw=green!60] at (6, 4.5) {Auth Service\\Container\\OAuth 2.0\\JWT Tokens};
-  
-  % Computational Engine Cluster
-  \node[container, fill=orange!25, draw=orange!60] at (-6, 2.5) {Portfolio\\Engine\\NumPy/SciPy\\CPU Optimized};
-  \node[container, fill=orange!25, draw=orange!60] at (-2, 2.5) {Risk Engine\\Container\\Monte Carlo\\GPU Enabled};
-  \node[container, fill=orange!25, draw=orange!60] at (2, 2.5) {Pricing Engine\\Container\\QuantLib\\CUDA Support};
-  \node[container, fill=orange!25, draw=orange!60] at (6, 2.5) {ML Pipeline\\Container\\TensorFlow\\Model Serving};
-  
-  % Storage Layer
-  \node[storage, fill=red!25, draw=red!60] at (-4, 0.5) {PostgreSQL\\Primary DB\\Persistent Volume\\100GB SSD};
-  \node[storage, fill=red!25, draw=red!60] at (0, 0.5) {InfluxDB\\Time Series\\Persistent Volume\\500GB NVMe};
-  \node[storage, fill=red!25, draw=red!60] at (4, 0.5) {Redis Cluster\\Caching\\Memory\\16GB RAM};
-  
-  % Network Services
-  \node[network, fill=yellow!25, draw=yellow!60] at (-8, 4.5) {Service\\Mesh\\Istio};
-  \node[network, fill=yellow!25, draw=yellow!60] at (8, 4.5) {Monitoring\\Prometheus\\Grafana};
-  
-  % Connection Lines
-  \draw[connection] (-6, 6) -- (-6, 5);
-  \draw[connection] (-2, 6) -- (-2, 5);
-  \draw[connection] (2, 6) -- (2, 5);
-  \draw[connection] (6, 6) -- (6, 5);
-  \draw[connection] (-6, 4) -- (-6, 3);
-  \draw[connection] (-2, 4) -- (-2, 3);
-  \draw[connection] (2, 4) -- (2, 3);
-  \draw[connection] (6, 4) -- (6, 3);
-  \draw[connection] (-4, 2) -- (-4, 1);
-  \draw[connection] (0, 2) -- (0, 1);
-  \draw[connection] (4, 2) -- (4, 1);
-  
-  % Layer Labels
-  \node[font=\small\bfseries, color=gray!80] at (10, 6.5) {Frontend\\Layer};
-  \node[font=\small\bfseries, color=gray!80] at (10, 4.5) {API\\Layer};
-  \node[font=\small\bfseries, color=gray!80] at (10, 2.5) {Compute\\Layer};
-  \node[font=\small\bfseries, color=gray!80] at (10, 0.5) {Storage\\Layer};
-  
+\begin{tikzpicture}[node distance=10mm and 10mm, >=stealth, font=\small]
+    \tikzstyle{svc}=[rectangle, rounded corners=6pt, draw=black!65, thick, minimum width=3.0cm, minimum height=1.0cm, align=center]
+    \node[svc, fill=purple!12] (k8s) {Kubernetes Control Plane};
+    \node[svc, fill=blue!12, below left=of k8s] (front) {Frontend Pods};
+    \node[svc, fill=green!12, below=of k8s] (api) {API and Worker Pods};
+    \node[svc, fill=orange!14, below right=of k8s] (compute) {Pricing/Risk Pods};
+    \node[svc, fill=red!12, below=14mm of api] (data) {Stateful Services: PostgreSQL, InfluxDB, Redis};
+    \node[svc, fill=yellow!15, right=22mm of api] (obs) {Observability: Prometheus, Grafana};
+
+    \draw[->, thick] (k8s) -- (front);
+    \draw[->, thick] (k8s) -- (api);
+    \draw[->, thick] (k8s) -- (compute);
+    \draw[->, thick] (front) -- (api);
+    \draw[->, thick] (api) -- (compute);
+    \draw[->, thick] (api) -- (data);
+    \draw[->, thick] (compute) -- (data);
+    \draw[->, thick] (api) -- (obs);
 \end{tikzpicture}
 }
 \caption{Containerized Microservices Architecture with Kubernetes Orchestration \citep{kubernetes2023, docker2023}}
@@ -1094,7 +929,7 @@ if st.sidebar.button("Start Real-Time Monitoring"):
 
 The production deployment architecture implements a sophisticated containerized microservices approach utilizing Kubernetes orchestration for automated scaling, service discovery, and fault tolerance. Each computational component operates within isolated Docker containers configured with specific resource constraints, health checks, and restart policies optimized for financial computation workloads. The platform utilizes multi-stage Docker builds that separate build dependencies from runtime environments, achieving container image sizes below 500MB while maintaining complete functionality for production deployments.
 
-Kubernetes deployment manifests incorporate sophisticated resource allocation strategies including CPU and memory limits tailored to specific computational requirements\footnote{Resource limits prevent individual containers from consuming excessive resources that could impact other services, while resource requests ensure guaranteed minimum allocations for critical financial calculations.}, with mathematical engines receiving higher memory allocations (8-16GB)\footnote{Large memory allocations are essential for matrix operations in portfolio optimization, where covariance matrices for large universes (1000+ assets) require substantial RAM for efficient computation.} and GPU access where available for Monte Carlo simulations\footnote{GPU acceleration can provide 10-100x speedup for Monte Carlo simulations in derivative pricing, particularly for path-dependent options and credit modeling where thousands of scenarios are required.} and machine learning inference. The orchestration layer implements Horizontal Pod Autoscaling (HPA)\footnote{HPA automatically scales the number of pod replicas based on observed metrics, essential for handling variable computational loads during market hours versus overnight batch processing.} based on custom metrics including queue length for computational tasks\footnote{Queue length metrics prevent computational bottlenecks by scaling workers before queues become saturated, maintaining consistent processing latency for time-sensitive calculations.} and response time percentiles for API endpoints\footnote{Percentile-based metrics (e.g., 95th percentile response time) provide more robust scaling signals than average response times, which can be skewed by occasional slow requests.}, ensuring consistent performance during market volatility periods when computational demand typically increases.
+Kubernetes deployment manifests incorporate sophisticated resource allocation strategies including CPU and memory limits tailored to specific computational requirements\footnote{Resource requests/limits are standard Kubernetes controls for predictable multi-service scheduling and noisy-neighbor protection (Burns \& Beda, 2023).}, with mathematical engines receiving higher memory allocations (8-16GB)\footnote{Large matrix operations in portfolio analytics are memory-intensive, especially for high-dimensional covariance estimation (Markowitz, 1952; Tsay, 2010).} and GPU access where available for Monte Carlo simulations\footnote{Parallel acceleration is widely used for Monte Carlo pricing and risk scenarios to reduce computational wall time (Hull, 2018; Shreve, 2004).} and machine learning inference. The orchestration layer implements Horizontal Pod Autoscaling (HPA)\footnote{Autoscaling on service metrics is a core orchestration pattern for demand-responsive compute capacity (Burns \& Beda, 2023).} based on custom metrics including queue length for computational tasks\footnote{Queue-length control is a practical signal for scaling asynchronous workers in event-driven systems (Kreps et al., 2011).} and response time percentiles for API endpoints\footnote{Percentile service-level indicators are preferred for production reliability monitoring over simple means (Prometheus Team, 2023).}, ensuring consistent performance during market volatility periods when computational demand typically increases.
 
 \subsubsection{Advanced Infrastructure as Code Implementation}
 
@@ -2621,7 +2456,7 @@ class HestonModel:
 
 We demonstrate the platform's portfolio optimization capabilities using a dataset of 30 stocks from the S\&P 500 index over a 5-year period (2019-2024).
 
-\begin{figure}[H]
+\begin{figure}[htbp]
 \centering
 \begin{subfigure}{0.45\textwidth}
     \centering
@@ -2651,6 +2486,8 @@ We validated options pricing accuracy using market data from liquid options on S
 \begin{table}[H]
 \centering
 \caption{Options Pricing Model Comparison}
+\small
+\adjustbox{max width=\textwidth}{%
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 Model & Mean Absolute Error & Root MSE & Max Error & R-squared \\
@@ -2661,6 +2498,7 @@ Binomial Tree (1000) & 0.49 & 0.88 & 3.18 & 0.9242 \\
 Heston Model & 0.31 & 0.67 & 2.14 & 0.9567 \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 \subsection{Risk Management Application}
@@ -2934,9 +2772,6 @@ The platform addresses critical gaps in existing quantitative finance software b
 
 The author thanks the quantitative finance research community for valuable feedback and discussions that shaped the development of this platform. Special recognition goes to the open-source scientific computing ecosystem, particularly NumPy, SciPy, and pandas projects, which provided essential computational foundations.
 
-\bibliographystyle{apalike}
-\bibliography{references}
-
 \appendix
 
 \section{Implementation Details}
@@ -3034,74 +2869,77 @@ The authors thank the open-source community for foundational libraries and frame
 % Bibliography
 \begin{thebibliography}{99}
 
-\bibitem{markowitz1952}
+\bibitem[Markowitz(1952)]{markowitz1952}
 Markowitz, H. (1952). Portfolio selection. \textit{The Journal of Finance}, 7(1), 77--91.
 
-\bibitem{hull2018options}
+\bibitem[Hull(2018)]{hull2018options}
 Hull, J. C. (2018). \textit{Options, futures, and other derivatives} (10th ed.). Pearson.
 
-\bibitem{black1973pricing}
+\bibitem[Black and Scholes(1973)]{black1973pricing}
 Black, F., \& Scholes, M. (1973). The pricing of options and corporate liabilities. \textit{Journal of Political Economy}, 81(3), 637--654.
 
-\bibitem{heston1993closed}
+\bibitem[Heston(1993)]{heston1993closed}
 Heston, S. L. (1993). A closed-form solution for options with stochastic volatility with applications to bond and currency options. \textit{The Review of Financial Studies}, 6(2), 327--343.
 
-\bibitem{shreve2004stochastic}
+\bibitem[Shreve(2004)]{shreve2004stochastic}
 Shreve, S. E. (2004). \textit{Stochastic calculus for finance II: Continuous-time models} (Vol. 11). Springer Science \& Business Media.
 
-\bibitem{kafka2023}
+\bibitem[Kreps et al.(2023)]{kafka2023}
 Kreps, J., Narkhede, N., \& Rao, J. (2023). Apache Kafka: A distributed streaming platform. \textit{Communications of the ACM}, 66(5), 94--103.
 
-\bibitem{spark2023}
+\bibitem[Zaharia et al.(2023)]{spark2023}
 Zaharia, M., et al. (2023). Apache Spark: unified analytics engine for large-scale data processing. Available at: \url{https://spark.apache.org/}
 
-\bibitem{influxdb2023}
+\bibitem[InfluxData Team(2023)]{influxdb2023}
 InfluxData Team. (2023). InfluxDB: Purpose-built for time series data. \textit{IEEE Software}, 40(2), 88--95.
 
-\bibitem{kubernetes2023}
+\bibitem[Burns and Beda(2023)]{kubernetes2023}
 Burns, B., \& Beda, J. (2023). \textit{Kubernetes: Production-grade container orchestration} (2nd ed.). O'Reilly Media.
 
-\bibitem{docker2023}
+\bibitem[Docker Inc.(2023)]{docker2023}
 Docker Inc. (2023). Docker: Containerization platform. Available at: \url{https://www.docker.com/}
 
-\bibitem{prometheus2023}
+\bibitem[Prometheus Team(2023)]{prometheus2023}
 Prometheus Team. (2023). Prometheus monitoring system and time series database. \textit{ACM Transactions on Computer Systems}, 41(3), 1--28.
 
-\bibitem{quantlib2000}
+\bibitem[Ametrano and Ballabio(2000)]{quantlib2000}
 Ametrano, F., \& Ballabio, L. (2000). QuantLib: A free/open-source library for quantitative finance. Available at: \url{https://www.quantlib.org/}
 
-\bibitem{dean2008mapreduce}
+\bibitem[Dean and Ghemawat(2008)]{dean2008mapreduce}
 Dean, J., \& Ghemawat, S. (2008). MapReduce: simplified data processing on large clusters. \textit{Communications of the ACM}, 51(1), 107--113.
 
-\bibitem{kreps2011kafka}
+\bibitem[Kreps et al.(2011)]{kreps2011kafka}
 Kreps, J., Narkhede, N., Rao, J., Seeger, P., \& Vohra, A. (2011). Kafka: a distributed messaging system for log processing. \textit{Proceedings of the NetDB}, 11, 1--7.
 
-\bibitem{bollerslev1986garch}
+\bibitem[Bollerslev(1986)]{bollerslev1986garch}
 Bollerslev, T. (1986). Generalized autoregressive conditional heteroskedasticity. \textit{Journal of Econometrics}, 31(3), 307--327.
 
-\bibitem{engle1982arch}
+\bibitem[Engle(1982)]{engle1982arch}
 Engle, R. F. (1982). Autoregressive conditional heteroscedasticity with estimates of the variance of United Kingdom inflation. \textit{Econometrica: Journal of the Econometric Society}, 987--1007.
 
-\bibitem{tsay2010analysis}
+\bibitem[Tsay(2010)]{tsay2010analysis}
 Tsay, R. S. (2010). \textit{Analysis of financial time series} (Vol. 543). John Wiley \& Sons.
 
-\bibitem{fama1993common}
+\bibitem[Fama and French(1993)]{fama1993common}
 Fama, E. F., \& French, K. R. (1993). Common risk factors in the returns on stocks and bonds. \textit{Journal of Financial Economics}, 33(1), 3--56.
 
-\bibitem{jorion2007value}
+\bibitem[Jorion(2007)]{jorion2007value}
 Jorion, P. (2007). \textit{Value at risk: the new benchmark for managing financial risk} (3rd ed.). McGraw-Hill.
 
-\bibitem{artzner1999coherent}
+\bibitem[Artzner et al.(1999)]{artzner1999coherent}
 Artzner, P., Delbaen, F., Eber, J.-M., \& Heath, D. (1999). Coherent measures of risk. \textit{Mathematical Finance}, 9(3), 203--228.
 
-\bibitem{mcneil2015quantitative}
+\bibitem[McNeil et al.(2015)]{mcneil2015quantitative}
 McNeil, A. J., Frey, R., \& Embrechts, P. (2015). \textit{Quantitative risk management: concepts, techniques and tools} (Revised ed.). Princeton University Press.
 
-\bibitem{almgren2001optimal}
+\bibitem[Almgren and Chriss(2001)]{almgren2001optimal}
 Almgren, R., \& Chriss, N. (2001). Optimal execution of portfolio transactions. \textit{Journal of Risk}, 3, 5--40.
 
-\bibitem{grinold2000active}
+\bibitem[Grinold and Kahn(2000)]{grinold2000active}
 Grinold, R. C., \& Kahn, R. N. (2000). \textit{Active portfolio management} (2nd ed.). McGraw Hill.
+
+\bibitem[Joseph(2026)]{joseph2026author}
+Joseph, G. D. J. (2026). \textit{Author affiliation and correspondence record}. University of Ottawa.
 
 \end{thebibliography}
 

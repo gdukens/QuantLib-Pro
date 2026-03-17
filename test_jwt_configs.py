@@ -13,7 +13,7 @@ with open("factset_jwk.json", "r") as f:
 
 token_endpoint = "https://auth.factset.com/as/token.oauth2"
 
-def test_config(name, aud, scope):
+def run_config(name, aud, scope):
     """Test a specific JWT configuration."""
     print(f"\n{'='*70}")
     print(f"Test: {name}")
@@ -79,7 +79,7 @@ configs = [
 
 success = None
 for name, aud, scope in configs:
-    if test_config(name, aud, scope):
+    if run_config(name, aud, scope):
         success = (name, aud, scope)
         break
 

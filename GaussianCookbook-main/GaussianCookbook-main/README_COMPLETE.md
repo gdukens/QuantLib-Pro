@@ -2,7 +2,7 @@
 
 A comprehensive Python library for simulating and analyzing Gaussian stochastic processes with mathematical rigor and computational excellence.
 
-## 🎯 Complete Feature Overview
+##  Complete Feature Overview
 
 ### Core Stochastic Processes
 - **Brownian Motion**: Standard and arithmetic Brownian motion with drift
@@ -24,7 +24,7 @@ A comprehensive Python library for simulating and analyzing Gaussian stochastic 
 - **Normality Tests**: Jarque-Bera, Anderson-Darling, Shapiro-Wilk  
 - **Autocorrelation Tests**: Ljung-Box, Breusch-Godfrey
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Installation
 ```bash
@@ -147,7 +147,7 @@ jb_result = tester.jarque_bera_test(normal_data)
 print(f"Jarque-Bera test: p-value = {jb_result.p_value:.4f}, normal = {jb_result.is_good_fit}")
 ```
 
-## 🧮 Mathematical Foundation
+##  Mathematical Foundation
 
 ### Fractional Brownian Motion
 A self-similar Gaussian process B_H(t) with Hurst parameter H ∈ (0,1):
@@ -188,7 +188,7 @@ For observed fBM path X = (X₁, ..., X_n):
 I(H, σ²) = E[∂²ℓ/∂θᵢ∂θⱼ] for θ = (H, σ²)
 ```
 
-## 🔬 Advanced Features
+##  Advanced Features
 
 ### Multiple Simulation Algorithms
 - **Davies-Harte**: Fast O(n log n) via FFT and circulant embedding
@@ -207,7 +207,7 @@ I(H, σ²) = E[∂²ℓ/∂θᵢ∂θⱼ] for θ = (H, σ²)
 - Robust optimization with multiple initializations
 - Automatic fallback methods for edge cases
 
-## 📊 Performance Benchmarks
+##  Performance Benchmarks
 
 ### Simulation Speed (1000 time points)
 - **Davies-Harte**: ~2ms per path
@@ -224,7 +224,7 @@ I(H, σ²) = E[∂²ℓ/∂θᵢ∂θⱼ] for θ = (H, σ²)
 - Self-similarity validated via KS tests (p > 0.05)
 - Incremental variance scaling: R² > 0.99
 
-## 🧪 Testing Suite
+##  Testing Suite
 
 ### Run All Tests
 ```bash
@@ -250,7 +250,7 @@ pytest tests/test_performance.py -v --benchmark-only
 - **Statistical Tests**: Power, size, distributional assumptions
 - **Performance**: Speed benchmarks, memory usage, scalability
 
-## 📚 Complete Documentation
+##  Complete Documentation
 
 ### Quick Demo
 ```bash
@@ -272,9 +272,9 @@ jupyter lab
 - **Estimation**: [gaussian_cookbook.estimation](gaussian_cookbook/estimation/) 
 - **Testing**: [gaussian_cookbook.testing](gaussian_cookbook/testing/)
 
-## 🚀 Development Roadmap
+##  Development Roadmap
 
-### Completed ✅
+### Completed 
 - [x] Core stochastic process implementations
 - [x] Multiple simulation algorithms  
 - [x] Comprehensive parameter estimation
@@ -284,7 +284,7 @@ jupyter lab
 - [x] Performance optimization
 - [x] Research-grade documentation
 
-### Future Enhancements 🎯
+### Future Enhancements 
 - [ ] Multifractional Brownian motion
 - [ ] Lévy processes and jump diffusions
 - [ ] GPU acceleration via CUDA/OpenCL
@@ -294,7 +294,7 @@ jupyter lab
 - [ ] Advanced estimation (Bayesian MCMC)
 - [ ] Machine learning integration
 
-## 🤝 Contributing
+##  Contributing
 
 ### Development Setup
 ```bash
@@ -326,18 +326,18 @@ pytest tests/ --cov=gaussian_cookbook
 4. Ensure all CI checks pass
 5. Request review from maintainers
 
-## 📄 License
+##  License
 
 MIT License - see [LICENSE](LICENSE) for details.
 
-## 📞 Support
+##  Support
 
 - **Issues**: GitHub Issues for bug reports
 - **Discussions**: GitHub Discussions for questions
 - **Email**: [maintainer-email] for private inquiries
 - **Documentation**: Full API docs at [docs-url]
 
-## 🏆 Acknowledgments
+##  Acknowledgments
 
 - **Mathematical Foundation**: Mandelbrot & Van Ness (1968), Samorodnitsky & Taqqu (1994)
 - **Algorithms**: Davies & Harte (1987), Dietrich & Newsam (1997)
@@ -346,6 +346,6 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-**Transform from educational notebooks to research-grade library!** 🎯
+**Transform from educational notebooks to research-grade library!** 
 
 *Mathematical rigor meets computational excellence.*

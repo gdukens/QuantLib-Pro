@@ -8,7 +8,7 @@ A comprehensive, production-grade REST API that unifies 30+ specialized quantita
 [![Production](https://img.shields.io/badge/status-production--ready-success)](https://github.com/gdukens/quant-simulator)
 [![FRED Integration](https://img.shields.io/badge/FRED-integrated-brightgreen)](https://fred.stlouisfed.org/)
 
-**📊 Enterprise-Ready** | **Real Market Data** | **30+ Applications** | **✅ Production Deployment**
+** Enterprise-Ready** | **Real Market Data** | **30+ Applications** | ** Production Deployment**
 
 ---
 
@@ -147,7 +147,7 @@ docker-compose -f docker-compose.prod.yml up -d
 
 ---
 
-## 🎯 Use Cases
+##  Use Cases
 
 ### Quantitative Analysts
 ```python
@@ -199,7 +199,7 @@ print(f"Sharpe Ratio: {results.sharpe_ratio:.2f}")
 
 ---
 
-## 🏗️ Architecture
+##  Architecture
 
 QuantLib Pro uses **hexagonal (ports and adapters) architecture** with 5 layers:
 
@@ -230,19 +230,19 @@ See [Architecture Documentation](docs/architecture.md) for details.
 
 ---
 
-## 📊 UI Dashboard
+##  UI Dashboard
 
 ### 9 Specialized Pages
 
-1. **📊 Portfolio Optimizer** - MPT optimization with constraints
-2. **⚠️ Risk Analytics** - VaR, CVaR, stress testing
-3. **📈 Options Pricing** - Black-Scholes, Monte Carlo, Greeks
-4. **🔄 Backtesting** - Strategy testing and performance metrics
-5. **🎯 Regime Detection** - HMM regime classification
-6. **📉 Monte Carlo** - Wealth simulations and scenario analysis
-7. **🔍 Data Explorer** - Market data visualization
-8. **📊 Advanced Analytics** - Performance profiling, correlation, tail risk
-9. **🧪 Testing** - Load testing, model validation, chaos engineering
+1. ** Portfolio Optimizer** - MPT optimization with constraints
+2. ** Risk Analytics** - VaR, CVaR, stress testing
+3. ** Options Pricing** - Black-Scholes, Monte Carlo, Greeks
+4. ** Backtesting** - Strategy testing and performance metrics
+5. ** Regime Detection** - HMM regime classification
+6. ** Monte Carlo** - Wealth simulations and scenario analysis
+7. ** Data Explorer** - Market data visualization
+8. ** Advanced Analytics** - Performance profiling, correlation, tail risk
+9. ** Testing** - Load testing, model validation, chaos engineering
 
 ---
 
@@ -329,15 +329,15 @@ quantlib_pro/                   # Main package (15,000+ lines)
 
 pages/                         # Streamlit UI pages
 ├── Home.py                    # Landing page
-├── 1_📊_Portfolio_Optimizer.py
-├── 2_⚠️_Risk_Analytics.py
-├── 3_📈_Options_Pricing.py
-├── 4_🔄_Backtesting.py
-├── 5_🎯_Regime_Detection.py
-├── 6_📉_Monte_Carlo.py
-├── 7_🔍_Data_Explorer.py
-├── 8_📊_Advanced_Analytics.py
-└── 9_🧪_Testing.py
+├── 1__Portfolio_Optimizer.py
+├── 2__Risk_Analytics.py
+├── 3__Options_Pricing.py
+├── 4__Backtesting.py
+├── 5__Regime_Detection.py
+├── 6__Monte_Carlo.py
+├── 7__Data_Explorer.py
+├── 8__Advanced_Analytics.py
+└── 9__Testing.py
 
 tests/                         # Test suite (3,500+ lines)
 ├── unit/                      # Unit tests
@@ -359,7 +359,7 @@ docs/                          # Documentation
 
 ---
 
-## 📚 Documentation
+##  Documentation
 
 ### Getting Started
 - **[User Guide](docs/guides/user_guide.md)** - Comprehensive guide with examples
@@ -377,7 +377,7 @@ docs/                          # Documentation
 
 ---
 
-## 🧪 Testing
+##  Testing
 
 QuantLib Pro includes comprehensive testing infrastructure:
 
@@ -416,38 +416,38 @@ python -m quantlib_pro.testing.model_validation
 
 ---
 
-## 🚧 Project Status
+##  Project Status
 
 **Current Phase:** Week 17 of 22 (77% complete)
 
-### ✅ Completed (Weeks 1-16)
+###  Completed (Weeks 1-16)
 
-- ✅ Core infrastructure & architecture
-- ✅ Portfolio optimization (MPT, efficient frontier)
-- ✅ Risk analytics (VaR, CVaR, stress testing)
-- ✅ Options pricing (Black-Scholes, Monte Carlo)
-- ✅ Data management & validation
-- ✅ Backtesting engine
-- ✅ Regime detection (HMM)
-- ✅ Monte Carlo simulations
-- ✅ Governance & compliance (audit trail, policies)
-- ✅ Observability (profiling, monitoring, alerts)
-- ✅ Advanced analytics (stress testing, tail risk, correlation)
-- ✅ Testing infrastructure (load, chaos, validation)
-- ✅ Documentation (API, guides, tutorials)
+-  Core infrastructure & architecture
+-  Portfolio optimization (MPT, efficient frontier)
+-  Risk analytics (VaR, CVaR, stress testing)
+-  Options pricing (Black-Scholes, Monte Carlo)
+-  Data management & validation
+-  Backtesting engine
+-  Regime detection (HMM)
+-  Monte Carlo simulations
+-  Governance & compliance (audit trail, policies)
+-  Observability (profiling, monitoring, alerts)
+-  Advanced analytics (stress testing, tail risk, correlation)
+-  Testing infrastructure (load, chaos, validation)
+-  Documentation (API, guides, tutorials)
 
-### 🔄 In Progress (Week 17)
-- 🔄 Documentation finalization
+###  In Progress (Week 17)
+-  Documentation finalization
 - ⏳ API reference completion
 
-### 📅 Upcoming (Weeks 18-22)
+###  Upcoming (Weeks 18-22)
 - Week 18: User acceptance testing (UAT)
 - Weeks 19-20: Production deployment
 - Weeks 21-22: Hardening & stabilization
 
 ---
 
-## 🎓 Key Concepts
+##  Key Concepts
 
 ### Modern Portfolio Theory (MPT)
 ```python
@@ -479,7 +479,7 @@ regimes = detector.fit_predict(returns)
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for:
 - Code style guidelines
@@ -489,13 +489,13 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
 ---
 
-## 📄 License
+##  License
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - **Hull, J. C.** - Options, Futures, and Other Derivatives (benchmarks)
 - **Markowitz, H.** - Modern Portfolio Theory
