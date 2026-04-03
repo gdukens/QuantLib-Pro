@@ -12,6 +12,34 @@ import re
 # Load environment variables
 load_dotenv()
 
+# Helper function: get session or env/secret value for provider keys
+
+def get_provider_api_key(provider_name: str) -> str:
+    session_val = st.session_state.get(f"{provider_name}_API_KEY")
+    if session_val:
+        return session_val.strip()
+
+    if hasattr(st, "secrets") and st.secrets is not None:
+        secret_val = st.secrets.get(f"{provider_name}_API_KEY")
+        if secret_val:
+            return str(secret_val).strip()
+
+    return os.getenv(f"{provider_name}_API_KEY", "").strip()
+
+
+def get_provider_enabled_flag(provider_name: str) -> bool:
+    session_val = st.session_state.get(f"{provider_name}_ENABLED")
+    if isinstance(session_val, bool):
+        return session_val
+
+    if hasattr(st, "secrets") and st.secrets is not None:
+        secret_val = st.secrets.get(f"{provider_name}_ENABLED")
+        if isinstance(secret_val, str):
+            return secret_val.strip().lower() == "true"
+
+    return os.getenv(f"{provider_name}_ENABLED", "false").lower() == "true"
+
+
 st.title("Settings & Configuration")
 st.markdown("Configure API keys, data providers, and system preferences")
 
@@ -25,7 +53,54 @@ tab1, tab2, tab3 = st.tabs(["API Keys", "Data Providers", "System Info"])
 with tab1:
     st.header("API Key Configuration")
     st.markdown("Secure configuration for third-party data providers")
-    
+
+    # Temporary session overrides (Option 1)
+    st.expander("Temporary session API keys", expanded=False)
+    tmp_col1, tmp_col2 = st.columns(2)
+    with tmp_col1:
+        temp_av_key = st.text_input(
+            "Temp Alpha Vantage key",
+            value=st.session_state.get("ALPHA_VANTAGE_API_KEY", ""),
+            type="password",
+            help="Use this key for current session only",
+            key="temp_av_key",
+        )
+        temp_fred_key = st.text_input(
+            "Temp FRED key",
+            value=st.session_state.get("FRED_API_KEY", ""),
+            type="password",
+            help="Use this key for current session only",
+            key="temp_fred_key",
+        )
+
+    with tmp_col2:
+        temp_factset_user = st.text_input(
+            "Temp FactSet username",
+            value=st.session_state.get("FACTSET_USERNAME", ""),
+            help="Use this username for current session only",
+            key="temp_factset_user",
+        )
+        temp_factset_key = st.text_input(
+            "Temp FactSet key",
+            value=st.session_state.get("FACTSET_API_KEY", ""),
+            type="password",
+            help="Use this key for current session only",
+            key="temp_factset_key",
+        )
+
+    if st.button("Apply temporary session keys", key="apply_temporary_keys"):
+        if temp_av_key:
+            st.session_state["ALPHA_VANTAGE_API_KEY"] = temp_av_key.strip()
+        if temp_fred_key:
+            st.session_state["FRED_API_KEY"] = temp_fred_key.strip()
+        if temp_factset_user:
+            st.session_state["FACTSET_USERNAME"] = temp_factset_user.strip()
+        if temp_factset_key:
+            st.session_state["FACTSET_API_KEY"] = temp_factset_key.strip()
+
+        st.success("Temporary session credentials applied.")
+        st.experimental_rerun()
+
     # Find .env file
     env_path = find_dotenv()
     if not env_path:
@@ -42,8 +117,8 @@ with tab1:
     st.markdown("**Premium financial data API** - Real-time quotes, historical data, technical indicators")
     
     # Current status
-    current_av_key = os.getenv("ALPHA_VANTAGE_API_KEY", "")
-    av_enabled = os.getenv("ALPHA_VANTAGE_ENABLED", "false").lower() == "true"
+    current_av_key = get_provider_api_key("ALPHA_VANTAGE")
+    av_enabled = get_provider_enabled_flag("ALPHA_VANTAGE")
     
     # Check if key is configured and valid format
     av_configured = current_av_key and current_av_key != "REPLACE_WITH_ALPHA_VANTAGE_KEY" and len(current_av_key) > 10
@@ -277,8 +352,8 @@ with tab1:
     st.markdown("**Macroeconomic data from the Federal Reserve** - Free access to 800,000+ economic time series")
     
     # Current status
-    current_fred_key = os.getenv("FRED_API_KEY", "")
-    fred_enabled = os.getenv("FRED_ENABLED", "false").lower() == "true"
+    current_fred_key = get_provider_api_key("FRED")
+    fred_enabled = get_provider_enabled_flag("FRED")
     
     # Check if key is configured and valid format
     fred_configured = current_fred_key and current_fred_key != "REPLACE_WITH_FRED_API_KEY" and len(current_fred_key) > 10
@@ -477,8 +552,8 @@ with tab2:
     })
     
     # FactSet
-    fs_username = os.getenv("FACTSET_USERNAME", "")
-    fs_key = os.getenv("FACTSET_API_KEY", "")
+    fs_username = get_provider_api_key("FACTSET_USERNAME") if hasattr(st, 'session_state') else os.getenv("FACTSET_USERNAME", "")
+    fs_key = get_provider_api_key("FACTSET")
     fs_status = "Ready" if (fs_username and fs_key and fs_key != "REPLACE_WITH_FACTSET_SERIAL_KEY") else "Not Configured"
     providers_status.append({
         "Provider": "FactSet",
