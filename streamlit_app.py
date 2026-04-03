@@ -6,6 +6,33 @@ Uses st.navigation with Material Design icons (Streamlit 1.36+).
 import streamlit as st
 import os
 
+# Helper functions for option 1 and 3: dynamic per-session + fallback secret/env keys
+def get_provider_api_key(provider_name: str):
+    session_key = st.session_state.get(f"{provider_name}_API_KEY")
+    if session_key:
+        return session_key.strip()
+
+    if hasattr(st, "secrets") and st.secrets is not None:
+        secret_key = st.secrets.get(f"{provider_name}_API_KEY")
+        if secret_key:
+            return secret_key.strip()
+
+    return os.getenv(f"{provider_name}_API_KEY", "").strip()
+
+
+def get_provider_enabled_flag(provider_name: str):
+    session_state_val = st.session_state.get(f"{provider_name}_ENABLED")
+    if isinstance(session_state_val, bool):
+        return session_state_val
+
+    env_val = os.getenv(f"{provider_name}_ENABLED", "false").lower()
+    if hasattr(st, "secrets") and st.secrets is not None:
+        secret_val = st.secrets.get(f"{provider_name}_ENABLED")
+        if isinstance(secret_val, str) and secret_val.strip():
+            env_val = secret_val.strip().lower()
+    return env_val == "true"
+
+
 # Global page config - called ONCE here; pages must NOT call it
 st.set_page_config(
     page_title="QuantLib Pro",
@@ -14,14 +41,38 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+
+def set_session_provider_keys():
+    with st.sidebar.expander("Temporary API Keys (current session)", expanded=False):
+        tmp_av_key = st.text_input("Alpha Vantage API Key (session)", type="password", key="tmp_av_key")
+        tmp_fred_key = st.text_input("FRED API Key (session)", type="password", key="tmp_fred_key")
+        tmp_factset_username = st.text_input("FactSet Username (session)", key="tmp_factset_username")
+        tmp_factset_api = st.text_input("FactSet API Key (session)", type="password", key="tmp_factset_api")
+
+        if st.button("Apply temporary keys", key="apply_temp_keys"):
+            if tmp_av_key:
+                st.session_state["ALPHA_VANTAGE_API_KEY"] = tmp_av_key.strip()
+            if tmp_fred_key:
+                st.session_state["FRED_API_KEY"] = tmp_fred_key.strip()
+            if tmp_factset_username:
+                st.session_state["FACTSET_USERNAME"] = tmp_factset_username.strip()
+            if tmp_factset_api:
+                st.session_state["FACTSET_API_KEY"] = tmp_factset_api.strip()
+
+            st.success("Temporary session credentials have been applied. Re-run the desired action.")
+            st.experimental_rerun()
+
+
 # Check API credentials and show setup dialog if needed
 def check_and_prompt_credentials():
     """Check for API credentials and prompt user if they're missing."""
-    fred_key = os.getenv("FRED_API_KEY", "")
+    fred_key = get_provider_api_key("FRED")
     fred_configured = fred_key and fred_key != "REPLACE_WITH_FRED_API_KEY" and len(fred_key) > 10
+    fred_enabled = get_provider_enabled_flag("FRED")
     
-    av_key = os.getenv("ALPHA_VANTAGE_API_KEY", "")
+    av_key = get_provider_api_key("ALPHA_VANTAGE")
     av_configured = av_key and av_key != "REPLACE_WITH_ALPHA_VANTAGE_KEY" and len(av_key) > 10
+    av_enabled = get_provider_enabled_flag("ALPHA_VANTAGE")
     
     # If credentials are missing, show setup instructions
     if not fred_configured or not av_configured:
@@ -75,6 +126,9 @@ def check_and_prompt_credentials():
                 st.switch_page("pages/18_Settings.py")
         
         st.divider()
+
+# Apply session provider key overrides (Option 1)
+set_session_provider_keys()
 
 # Show credentials prompt on app startup
 check_and_prompt_credentials()
@@ -132,22 +186,22 @@ with st.sidebar:
     else:
         st.info("API: Cloud Mode")
     
-    # Check data providers
-    fred_key = os.getenv("FRED_API_KEY", "")
-    fred_ok = fred_key and fred_key != "REPLACE_WITH_FRED_API_KEY" and len(fred_key) > 10
-    av_key = os.getenv("ALPHA_VANTAGE_API_KEY", "")
-    av_ok = av_key and av_key != "REPLACE_WITH_ALPHA_VANTAGE_KEY" and len(av_key) > 10
+    # Check data providers (with session/secret/env fallback)
+    fred_key = get_provider_api_key("FRED")
+    fred_ok = bool(fred_key and fred_key != "REPLACE_WITH_FRED_API_KEY" and len(fred_key) > 10)
+    av_key = get_provider_api_key("ALPHA_VANTAGE")
+    av_ok = bool(av_key and av_key != "REPLACE_WITH_ALPHA_VANTAGE_KEY" and len(av_key) > 10)
     
     st.success("UI: Online")
     st.success("Yahoo Finance: Ready")
     if fred_ok:
         st.success("FRED: Connected")
     else:
-        st.warning("FRED: Configure in Settings")
+        st.warning("FRED: Configure in Settings or session override")
     if av_ok:
         st.success("Alpha Vantage: Connected")
     else:
-        st.warning("Alpha Vantage: Configure in Settings")
+        st.warning("Alpha Vantage: Configure in Settings or session override")
 
     st.divider()
     st.caption("v1.0.0 · Streamlit · FastAPI")
